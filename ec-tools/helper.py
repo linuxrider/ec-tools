@@ -14,8 +14,8 @@ def find_x0_values(x, y, mode="all"):
     
     >>> x = np.array([10, 10.5, 11, 11.5, 12])
     >>> y = np.array([1, 1, -1, -1, 1])
-    >>> find_x0(x,y)
-    [10.75 11.75]
+    >>> find_x0_values(x,y)
+    array([10.75, 11.75])
     """
     if mode == "all":
     	crossings = np.where(np.diff(np.sign(y)))[0]
