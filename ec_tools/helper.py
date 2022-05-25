@@ -63,3 +63,17 @@ def determine_scan_rate(t, x):
     """
 
     return np.abs(np.diff(x) / np.diff(t)).mean()
+
+def detect_step(t, x):
+    """Return index of step in given t and x arrays.
+    Index is the where the changed value of t located.
+    TEST:
+    >>> t = np.array([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5,
+    ... 1.6, 1.7, 1.8, 1.9, 2.0])
+    >>> E = np.array([-0.205383, -0.204468, -0.204773, -0.205078, 0.500183, 0.500488, 0.501099,
+    ... 0.500183, 0.500488, 0.500488, 0.500183, 0.500488, 0.500488, 0.500488, 0.500183, 0.499878,
+    ... 0.499878, 0.500183, 0.500183, 0.499878, 0.500488])
+    >>> detect_step(t, E)
+    4
+    """
+    return np.abs(np.diff(x) / np.diff(t)).argmax() + 1
