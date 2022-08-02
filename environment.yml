@@ -3,4 +3,10 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - black
+  - isort
   - numpy
+  - pip
+  - pylint
+  - pytest
+  - pytest-doctestplus
