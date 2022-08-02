@@ -12,7 +12,7 @@ def find_x0_values(x, y, mode="all"):
 
     TODO:
     - add non-linear interpolation
-    
+
     >>> x = np.array([10, 10.5, 11, 11.5, 12])
     >>> y = np.array([1, 1, -1, -1, 1])
     >>> find_x0_values(x, y)
@@ -47,10 +47,15 @@ def find_x0_values(x, y, mode="all"):
         exact_crossings = np.where(signs == -1)[0]
         non_exact_crossings = np.where(signs < -1)[0]
 
-    m = (y[non_exact_crossings] - y[non_exact_crossings+1]) / (x[non_exact_crossings] - x[non_exact_crossings+1])
-    Δx = -y[non_exact_crossings] / m
+    m = (y[non_exact_crossings] - y[non_exact_crossings + 1]) / (
+        x[non_exact_crossings] - x[non_exact_crossings + 1]
+    )
+    delta_x = -y[non_exact_crossings] / m
 
-    return np.sort(np.concatenate([x[exact_crossings[1::2]], Δx + x[non_exact_crossings]]))
+    return np.sort(
+        np.concatenate([x[exact_crossings[1::2]], delta_x + x[non_exact_crossings]])
+    )
+
 
 def determine_scan_rate(t, x):
     """Return scan rate of given t and x arrays.
@@ -63,6 +68,7 @@ def determine_scan_rate(t, x):
     """
 
     return np.abs(np.diff(x) / np.diff(t)).mean()
+
 
 def detect_step(t, x):
     """Return index of step in given t and x arrays.

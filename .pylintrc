@@ -1,0 +1,7 @@
+[FORMAT]
+max-line-length=256
+max-module-lines=65536
+good-names=x,y,N,c1,c2,a0,tau0,w1,w2,q,j,i,R,s,k,t,m
+
+[MESSAGES CONTROL]
+disable=import-outside-toplevel,too-many-arguments,use-maxsplit-arg,fixme
