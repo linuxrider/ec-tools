@@ -12,7 +12,7 @@ import numpy as np
 
 def prepare_kernel(q, delta_x, N, c1, c2):
     r"""
-    Setup the integration kernel with the order q, the x interval Δx, the length of the array N,
+    Setup the integration kernel with the order q, the x interval delat_x, the length of the array N,
     and the filter constants c1 and c2.
     """
     tau0 = delta_x * N**0.5
@@ -37,7 +37,7 @@ def prepare_kernel(q, delta_x, N, c1, c2):
 
 def semi_integration(y, q=-0.5, delta_x=1, c1=8, c2=2):
     """
-    Return the semiintegral R of order q for y with the x interval Δx and the filter constants
+    Return the semiintegral R of order q for y with the x interval delta_x and the filter constants
     c1 and c2.
 
     Semi-integrating two times with order q = -0.5 should give the same result as integrating once.
