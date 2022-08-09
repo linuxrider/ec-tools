@@ -10,9 +10,9 @@ def find_x0_values(x, y, mode="all"):
     the points.
     The mode determines if all or either positive or negative zero points should be returned.
 
-    TODO:
+    TODO:: see #5
     - add non-linear interpolation
-    
+
     >>> x = np.array([10, 10.5, 11, 11.5, 12])
     >>> y = np.array([1, 1, -1, -1, 1])
     >>> find_x0_values(x, y)
@@ -47,10 +47,15 @@ def find_x0_values(x, y, mode="all"):
         exact_crossings = np.where(signs == -1)[0]
         non_exact_crossings = np.where(signs < -1)[0]
 
-    m = (y[non_exact_crossings] - y[non_exact_crossings+1]) / (x[non_exact_crossings] - x[non_exact_crossings+1])
-    Δx = -y[non_exact_crossings] / m
+    m = (y[non_exact_crossings] - y[non_exact_crossings + 1]) / (
+        x[non_exact_crossings] - x[non_exact_crossings + 1]
+    )
+    delta_x = -y[non_exact_crossings] / m
 
-    return np.sort(np.concatenate([x[exact_crossings[1::2]], Δx + x[non_exact_crossings]]))
+    return np.sort(
+        np.concatenate([x[exact_crossings[1::2]], delta_x + x[non_exact_crossings]])
+    )
+
 
 def determine_scan_rate(t, x):
     """Return scan rate of given t and x arrays.
@@ -64,8 +69,9 @@ def determine_scan_rate(t, x):
 
     return np.abs(np.diff(x) / np.diff(t)).mean()
 
+
 def detect_step(t, x):
-    """Return index of step in given t and x arrays.
+    """Returns the index of the step in given t and x arrays.
     Index is the where the changed value of t located.
     TEST:
     >>> t = np.array([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5,
