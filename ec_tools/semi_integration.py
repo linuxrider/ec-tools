@@ -42,7 +42,7 @@ def semi_integration(y, q=-0.5, delta_x=1, c1=8, c2=2):
 
     Semi-integrating two times with order q = -0.5 should give the same result as integrating once.
     The relative error should not exceed 0.25 percent for 1000 and 0.5 percent per 10000 integration steps.
-    TODO:
+    TODO:: see #6
     - add test for non constant y values
 
     TEST:

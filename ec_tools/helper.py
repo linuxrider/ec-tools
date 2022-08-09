@@ -10,7 +10,7 @@ def find_x0_values(x, y, mode="all"):
     the points.
     The mode determines if all or either positive or negative zero points should be returned.
 
-    TODO:
+    TODO:: see #5
     - add non-linear interpolation
 
     >>> x = np.array([10, 10.5, 11, 11.5, 12])
