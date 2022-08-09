@@ -9,7 +9,7 @@ license     = {text = "GPL-3.0-or-later"}
 description = "tools to work with electrochemical data"
 readme      = "README.md"
 
-requires-python = ">=3.6.0"
+requires-python = ">=3.9.0"
 dependencies    = [
     "numpy",
 ]
