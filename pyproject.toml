@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ec-tools"
 license     = {text = "GPL-3.0-or-later"}
-description = "collection of tools to work with electrochemical data"
+description = "tools to work with electrochemical data"
 readme      = "README.md"
 
 requires-python = ">=3.6.0"
