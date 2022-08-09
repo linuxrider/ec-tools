@@ -71,7 +71,7 @@ def determine_scan_rate(t, x):
 
 
 def detect_step(t, x):
-    """Return index of step in given t and x arrays.
+    """Returns the index of the step in given t and x arrays.
     Index is the where the changed value of t located.
     TEST:
     >>> t = np.array([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5,
