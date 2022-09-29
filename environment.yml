@@ -1,10 +1,12 @@
-name: ec-tools-dev
+name: ec-tools
+
 channels:
   - conda-forge
   - defaults
 dependencies:
   - black
   - isort
+  - maturin>=0.13,<0.14
   - myst-parser
   - myst-nb
   - numba
