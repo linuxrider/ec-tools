@@ -7,6 +7,125 @@ Pajkossy, T., Nyikos, L., 1984. Fast algorithm for differintegration. Journal of
 """
 
 import numpy as np
+from transonic import jit
+
+
+def semi_integration(
+    y, x, v=-0.5, alg="frlt", transonic_backend="transonic", d_tol=1e-5
+):
+    r"""
+    This package contains different methods to perform a semi-integration (``v`` =-0.5) or semi-differentiation (``v`` =0.5)
+    on given data (``y`` and ``t`` ) with speed up by numpy, transonic or without simply using python.
+
+    Available algorithms (``alg`` ):
+
+    ``frlt``: Fast Test Riemann-Liouville transformation
+
+    ``g1``: Gruenwald
+
+    ``r1``: Riemann and Liouville
+
+    Available settings (``transonic_backend`` ):
+
+    ``python``: Python implementation
+
+    ``numba``: Numba package with jit(just in time)
+
+    ``pythran``: Transonic package with numba backend
+
+    """
+
+    # Calc average step size
+    deltas = np.diff(x)
+    delta_x = deltas.mean()
+
+    # warning if avg. delta_x differs to much from single ones
+    if np.max(np.abs(deltas/delta_x-1)) >= d_tol:
+        print(
+            "Warning: step size tolerance reached!\nAverage stepsize differs up to ", np.max(np.abs(deltas/delta_x-1))>= d_tol
+        )
+
+    if alg not in ["g1", "r1", "frlt"] or transonic_backend not in [
+        "python",
+        "numba",
+        "pythran",
+    ]:
+        raise ValueError("\nNo matching setting for alg or transonic_backend")
+
+    if alg == "frlt":
+        if transonic_backend == "python":
+
+            @jit(backend="python")
+            def fast_riemann_python(y, delta_x, v):
+                return fast_riemann(y, delta_x, v)
+
+            return fast_riemann_python(y, delta_x, v)
+
+        if transonic_backend == "numba":
+
+            @jit(backend="numba")
+            def fast_riemann_numba(y, delta_x, v):
+                return fast_riemann(y, delta_x, v)
+
+            return fast_riemann_numba(y, delta_x, v)
+
+        if transonic_backend == "pythran":
+
+            @jit(backend="pythran")
+            def fast_riemann_pythran(y, delta_x, v):
+                return fast_riemann(y, delta_x, v)
+
+            return fast_riemann_pythran(y, delta_x, v)
+
+    elif alg == "g1":
+        if transonic_backend == "python":
+
+            @jit(backend="python")
+            def gruenwald_python(y, delta_x, v):
+                return gruenwald(y, delta_x, v)
+
+            return gruenwald_python(y, delta_x, v)
+
+        if transonic_backend == "numba":
+
+            @jit(backend="numba")
+            def gruenwald_numba(y, delta_x, v):
+                return gruenwald(y, delta_x, v)
+
+            return gruenwald_numba(y, delta_x, v)
+
+        if transonic_backend == "pythran":
+
+            @jit(backend="pythran")
+            def gruenwald_pythran(y, delta_x, v):
+                return gruenwald(y, delta_x, v)
+
+            return gruenwald_pythran(y, delta_x, v)
+
+    elif alg == "r1":
+        if transonic_backend == "python":
+
+            @jit(backend="python")
+            def riemann_python(y, delta_x, v):
+                return riemann(y, delta_x, v)
+
+            return riemann_python(y, delta_x, v)
+
+        if transonic_backend == "numba":
+
+            @jit(backend="numba")
+            def riemann_numba(y, delta_x, v):
+                return riemann(y, delta_x, v)
+
+            return riemann_numba(y, delta_x, v)
+
+        if transonic_backend == "pythran":
+
+            @jit(backend="pythran")
+            def riemann_pythran(y, delta_x, v):
+                return riemann(y, delta_x, v)
+
+            return riemann_pythran(y, delta_x, v)
 
 
 def gruenwald(I, delta_x, v=-0.5):
@@ -28,7 +147,7 @@ def gruenwald(I, delta_x, v=-0.5):
     True
 
     Second test with more application-related values from a gaussian distribution function (from scipy):
-    
+
     >>> from scipy.stats import norm
     >>> from scipy.integrate import cumulative_trapezoid
     >>> x = np.linspace(0, 8, 1001)
@@ -51,6 +170,7 @@ def gruenwald(I, delta_x, v=-0.5):
             g_i = g_i * (1 - (v + 1) / i) + I[N - i]
         g_1[N - 1] = g_i * np.sqrt(delta_x)
     return g_1
+
 
 def riemann(y, delta_x, q=-0.5):
     """
@@ -113,16 +233,16 @@ def fast_riemann(y, delta_x=1, q=-0.5, c1=8, c2=2):
     """
     Implementation of the fast Riemann algorithm for semi-integration.
     based on
-    Pajkossy, T., Nyikos, L., 1984. Fast algorithm for differintegration. 
-    Journal of Electroanalytical Chemistry and Interfacial Electrochemistry 179, 
+    Pajkossy, T., Nyikos, L., 1984. Fast algorithm for differintegration.
+    Journal of Electroanalytical Chemistry and Interfacial Electrochemistry 179,
     65-69. https://doi.org/10.1016/S0022-0728(84)80275-2
-    
+
     Return the semiintegral R of order q for y with the x interval delta_x and the filter constants
     c1 and c2.
 
     Semi-integrating two times with order q = -0.5 should give the same result as integrating once.
     The relative error should not exceed 0.25 percent for 1000 and 0.5 percent per 10000 integration steps.
-    
+
     EXAMPLES:
 
     >>> from scipy.integrate import cumulative_trapezoid
@@ -137,7 +257,7 @@ def fast_riemann(y, delta_x=1, q=-0.5, c1=8, c2=2):
     >>> y = np.array([1]*10001)
     >>> np.allclose(fast_riemann(fast_riemann(y, delta_x=delta_x), delta_x=delta_x), cumulative_trapezoid(y,x,initial=0), rtol=5e-03)
     True
-    
+
     """
 
     def prepare_kernel(q, delta_x, N, c1, c2):
@@ -172,3 +292,91 @@ def fast_riemann(y, delta_x=1, q=-0.5, c1=8, c2=2):
             s[i] = s[i] * w1[i] + y[k] * w2[i]
             R[k] = R[k] + s[i]
     return R
+
+
+# def transonic_acceleration(I, delta_x, v=-0.5, alg="g1", backend="pythran"):
+#     r"""
+#     Acceleration by transonic package with following backends:
+
+#     ``python``: Python implementation
+
+#     ``numba``: Numba package with jit(just in time)
+
+#     ``pythran``: Transonic package with numba backend
+#     """
+#     if alg == "frlt":
+#         if backend == "python":
+
+#             @jit(backend="python")
+#             def fast_riemann_python(I, delta_x, v):
+#                 return fast_riemann(I, delta_x, v)
+
+#             return fast_riemann_python(I, delta_x, v)
+
+#         if backend == "numba":
+
+#             @jit(backend="numba")
+#             def fast_riemann_numba(I, delta_x, v):
+#                 return fast_riemann(I, delta_x, v)
+
+#             return fast_riemann_numba(I, delta_x, v)
+
+#         if backend == "pythran":
+
+#             @jit(backend="pythran")
+#             def fast_riemann_pythran(I, delta_x, v):
+#                 return fast_riemann(I, delta_x, v)
+
+#             return fast_riemann_pythran(I, delta_x, v)
+
+#     if alg == "g1":
+#         if backend == "python":
+
+#             @jit(backend="python")
+#             def gruenwald_python(I, delta_x, v):
+#                 return gruenwald(I, delta_x, v)
+
+#             return gruenwald_python(I, delta_x, v)
+
+#         if backend == "numba":
+
+#             @jit(backend="numba")
+#             def gruenwald_numba(I, delta_x, v):
+#                 return gruenwald(I, delta_x, v)
+
+#             return gruenwald_numba(I, delta_x, v)
+
+#         if backend == "pythran":
+
+#             @jit(backend="pythran")
+#             def gruenwald_pythran(I, delta_x, v):
+#                 return gruenwald(I, delta_x, v)
+
+#             return gruenwald_pythran(I, delta_x, v)
+
+#     if alg == "r1":
+#         if backend == "python":
+
+#             @jit(backend="python")
+#             def riemann_python(I, delta_x, v):
+#                 return riemann(I, delta_x, v)
+
+#             return riemann_python(I, delta_x, v)
+
+#         if backend == "numba":
+
+#             @jit(backend="numba")
+#             def riemann_numba(I, delta_x, v):
+#                 return riemann(I, delta_x, v)
+
+#             return riemann_numba(I, delta_x, v)
+
+#         if backend == "pythran":
+
+#             @jit(backend="pythran")
+#             def riemann_pythran(I, delta_x, v):
+#                 return riemann(I, delta_x, v)
+
+#             return riemann_pythran(I, delta_x, v)
+
+#     # return accelerated_function(I, delta_x, v)
