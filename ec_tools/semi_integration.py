@@ -1,8 +1,167 @@
 r"""
-Implementation of a algorithm for semi-integration.
-Fast Riemann-Liouville transformation (differintergration) - FRLT
-based on
-Pajkossy, T., Nyikos, L., 1984. Fast algorithm for differintegration. Journal of Electroanalytical Chemistry and Interfacial Electrochemistry 179, 65-69. https://doi.org/10.1016/S0022-0728(84)80275-2
+The differentiation and the integration are common mathematical operations. 
+The differentiation of an arbitrary function is often expressed by :math:`\frac{d}{dt} f(x)`.
+Interestingly, the integration can also be expressed in a similar way:
+
+:math:`\frac{d^{-1}}{dt^{-1}} f(x)= \int_0^t f(\tau) d\tau`
+
+Therefore, these operations can be displayed in a more general way by:
+
+:math:`\frac{d^{v}}{dt^{v}} f(x) = \int_0^t f(\tau) d\tau`
+
+With:
+
+* :math:`v= 1`: Differentiation
+
+* :math:`v=-1`: Integration
+
+Let's now introduce the so-called semi-operators. For :math:`v=1/2` we have the seimi differentiation and
+(more interestingly for us) with :math:`v=-1/2` the seimi integration. 
+The following picture visualize the idea of the semi integration and the semi differentiation.
+
+.. image:: ../doc/files/images/semidif.png
+  :width: 600
+  :alt: Image 
+
+The figure shows, that a semi integration of a peak function (bottom left) results in a hybrid function (top) and 
+by performing another semi integration it brings a wave function (bottom right), which is equal to 
+perform a "full" integration of the peak function. The opposide direction is similar, 
+expect that a semi differentiation, respectively a "full" differentiation is performed instead.
+  
+**Semi Integration Methods**
+
+Now we introduce some methods to apply the semi integration, resp. differentiation. 
+These computations needs generally discrete values, i.e. the function graph (like above) has to be seperated into discrete finite values:
+
+:math:`f(0), f(\delta), ..., f((N-1)\delta), f(N\delta)`
+
+Here we assume that the step size :math:`\delta` is equidistant, meaning for a fixed set of x-Values N:
+
+:math:`\delta = \frac{x_N}{N}`
+
+The following algorithms (Gruenwald and Riemann & Liouville) are taken from Oldham in [1] and the fast Riemann from Pajkossy et. al. in [2].
+
+
+Gruenwald Algorithms
+^^^^^^^^^^^^^^^^^^^^
+One sort of semi integration was introduced by Gruenwald [3] and 
+Oldham shows in his web ressource 1244 from [1] how this type of semi integration can be applied as an algorithm called G1 algorithm. 
+
+It can be generally expressed by taking the sum of the discrete function values multiplied with weights :math:`w_i` 
+and then divided by the stepsize:
+
+:math:`\frac{d^{\pm 0.5}}{dt^{\pm 0.5}} f(t) =\frac{1}{\delta^{\pm 0.5}} \sum_{n=0}^{N-1} w_n f(n\delta)`
+
+The G1 algorithms is ideal for voltammograms like linear-scan or cyclic versions, where the early signals are small. 
+**Note**, that these algorithms are less suitable for step and pulse varieties, in which the initial currents are large [1].
+
+The weight can be expressed on different ways, often the single weights :math:`w_i` depends on their predecessor :math:`w_{i-1}`. 
+As the factorial expression could lead to an overflow, this algorithm can be simplified.
+
+The **Gruenwald G1 semi integration algorithm** is defined as follows:
+
+:math:`\frac{d^{- 0.5}}{dt^{- 0.5}} f(t) \approx \sqrt{\delta} \sum_{n=1}^{N} w_{N-n} f(n\delta)`
+
+Which can be also displayed in reverse summation to allow an implementation:
+
+:math:`\frac{d^{- 0.5}}{dt^{- 0.5}} f(t) \approx \sqrt{\delta} \sum_{n=N}^{1} w_{N-n} f(n\delta)`
+
+With:
+
+* :math:`w_0 = 1`
+
+* :math:`w_n = \frac{(n-0.5)w_{n-1}}{n} = (1-\frac{0.5}{n})w_{n-1}`
+
+The previous definition can also be applied as  **Gruenwald G1 semi differentiation algorithm** with some changes:
+
+:math:`\frac{d^{0.5}}{dt^{0.5}} f(t) \approx \frac{1}{\sqrt{\delta}} \sum_{n=0}^{N-1} w_{N-n} f(n\delta)`
+
+With:
+
+* :math:`w_0 = 1`
+
+* :math:`w_n = \frac{(n-1.5)w_{n-1}}{n}`
+
+
+Riemann and Liouville Algorithms
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Another sort to determine the semi integral was introduced by Riemann and Liouville [4] and 
+described by Oldham in [1] as R1 algorithm in his web ressource 1244. 
+These sort of algorithms are mainly straightforward general-purpose algorithms.
+
+The algorithm (from Web1242) for the **R1 semi integration** is:
+
+:math:`\frac{d^{-1/2}}{dt^{-1/2}}f(t)=`
+
+:math:`\frac{4}{3} \sqrt{\frac{\delta}{\pi}} \left[ f(N\delta) + \left\{ \frac{3}{2}\sqrt{N} - N^{3/2} + (N-1)^{3/2} \right\}f(0) + \right.`
+:math:`\left.\sum_{n=1}^{N-1} \left\{ (N-n+1)^{3/2} - 2 (N-n)^{3/2} + (N-n-1)^{3/2} \right\}f(n\delta) \right]`
+
+The R1 algorithms are not usable for application to currents that arise from potential steps or leaps [1], as:
+
+1. The large current at t=0, immediately following the step is impossible to measure accurately and even if it would be possible,\
+it is likely to be largely composed of a chemically uninteresting nonfaradaic component. But the algorithm still require a value of f(0).
+
+2. The algorithm is based on the assumption that f(t) can be treated as an assemblage of linear segments, 
+whereas faradaic currents arising from a potential step and are decidedly nonlinear with time. 
+
+The general definition for the **R1 semi differentiation** is defined by:
+
+:math:`\frac{d^{1/2}}{dt^{1/2}}f(t)=`
+
+:math:`\frac{2}{\sqrt{\pi\delta}} \left[ f(N\delta) + \left\{ \frac{1}{2\sqrt{N}} - \sqrt{N} + \sqrt{N-1}\right\}f(0) +\right.`
+:math:`\left. \sum_{n=1}^{N-1} \left\{ \sqrt{N-n+1} - 2 \sqrt{N-n} + \sqrt{N-n-1} \right\}f(n\delta) \right]`
+
+
+The general definition for the **R1 semi differentiation** is defined by:
+
+
+:math:`\frac{d^{1/2}}{dt^{1/2}}f(t)=`
+:math:`\frac{2}{\sqrt{\pi\delta}} \left[ f(N\delta) + \left\{ \frac{1}{2\sqrt{N}} - \sqrt{N} + \sqrt{N-1}\right\}f(0) +\right.` 
+:math:`\left.\sum_{n=1}^{N-1} \left\{ \sqrt{N-n+1} - 2 \sqrt{N-n} + \sqrt{N-n-1} \right\}f(n\delta) \right]`
+
+
+
+Fast Riemann
+^^^^^^^^^^^^
+The following algorithm was introduced by Pajkossy et al. in 1984 [2] and is based on the Riemann-Liouville transformation (RLT). 
+Its big advantage is, that the computation time increases only linearly with the number of points (N). 
+Here it is necessary to define some input variables (beside the t & I(t) data), where q is equal to v, describing a semi integration or semi differentiation. 
+:math:`\Delta_t` defines the constant time intervall (i.e. :math:`t_2 - t_1`) and :math:`c_1, c_2` are constant values,
+which we set by default to :math:`c_1=8, c_2=2` (but still changeable). With these variables, the procedure of the algorithm can be described as pseudo code:
+
+**Input** 
+:math:`q, N, \Delta_t, c_1, c_2, I`
+
+:math:`t_0 = \Delta_t N^{1/2}` 
+
+:math:`a_0 = \sin(\pi q)/(\pi qt_0^q)`
+
+**For** :math:`i = 0,2c_1c_2`
+
+    :math:`j = i-c_1c_2`
+    
+    :math:`a_j = (a_0/c_2)\exp(j/c_2)`
+
+    :math:`t_j = t_0 \exp(-j/qc_2)`
+
+    :math:`w_1(i) = t_j / (\Delta_t + t_j)`
+
+    :math:`w_2(i) = a_j(1-w_1(i))`
+
+    :math:`s(i) = 0`
+
+**For** :math:`k=1,N`
+
+    :math:`R(k)=0`
+    
+    **For** :math:`i=0,2c_1c_2`
+    
+        :math:`s(i)= s(i)w_1(i) + I(k)w_2(i)`
+
+        :math:`R(k) = R(k) + s(i)`
+
+Here, :math:`R` represents the calculated semi integral, i.e. :math:`R \approx \frac{d^{v}}{dt^{v}} I(t)`.
 
 """
 
@@ -14,8 +173,9 @@ def semi_integration(
     y, x, v=-0.5, alg="frlt", transonic_backend="transonic", d_tol=1e-5
 ):
     r"""
-    This package contains different methods to perform a semi-integration (``v`` =-0.5) or semi-differentiation (``v`` =0.5)
-    on given data (``y`` and ``t`` ) with speed up by numpy, transonic or without simply using python.
+    To perform a semi integration (``v`` =-0.5) or semi differentiation (``v`` =0.5)
+    on given data (``y`` and ``t`` ) with speed up by transonic (with numba or pythran backend) or without simply using python
+    different methods are implemented.
 
     Available algorithms (``alg`` ):
 
@@ -40,10 +200,8 @@ def semi_integration(
     delta_x = deltas.mean()
 
     # warning if avg. delta_x differs to much from single ones
-    if np.max(np.abs(deltas/delta_x-1)) >= d_tol:
-        print(
-            "Warning: step size tolerance reached!\nAverage stepsize differs up to ", np.max(np.abs(deltas/delta_x-1))>= d_tol
-        )
+    if np.max(np.abs(deltas / delta_x - 1)) >= d_tol:
+        print("Warning: step size tolerance reached!")
 
     if alg not in ["g1", "r1", "frlt"] or transonic_backend not in [
         "python",
@@ -130,9 +288,12 @@ def semi_integration(
 
 def gruenwald(I, delta_x, v=-0.5):
     """
+    Gruenwald Algorithm
+    ^^^^^^^^^^^^^^^^^^^
+
     Implementation of the Gruenwald algorithm for
     semi-integration (``v`` =-0.5) and semi-differentiation (``v`` =0.5)
-    based on Oldham: Electrochemical Science and Technology, 2012
+    based on Oldham: [1]
 
     EXAMPLES:
 
@@ -174,10 +335,13 @@ def gruenwald(I, delta_x, v=-0.5):
 
 def riemann(y, delta_x, q=-0.5):
     """
+
+    Riemann Algorithm
+    ^^^^^^^^^^^^^^^^^
+
     Implementation of the Riemann algorithm for
     semi-integration (``v`` =-0.5) and semi-differentiation (``v`` =0.5)
-    based on
-    Oldham: Electrochemical Science and Technology, 2012
+    based on Oldham: [1]
 
     EXAMPLES:
 
@@ -231,11 +395,12 @@ def riemann(y, delta_x, q=-0.5):
 
 def fast_riemann(y, delta_x=1, q=-0.5, c1=8, c2=2):
     """
+
+    Fast Riemann Algorithm
+    ^^^^^^^^^^^^^^^^^^^^^^
+
     Implementation of the fast Riemann algorithm for semi-integration.
-    based on
-    Pajkossy, T., Nyikos, L., 1984. Fast algorithm for differintegration.
-    Journal of Electroanalytical Chemistry and Interfacial Electrochemistry 179,
-    65-69. https://doi.org/10.1016/S0022-0728(84)80275-2
+    based on Pajkossy et al [2]
 
     Return the semiintegral R of order q for y with the x interval delta_x and the filter constants
     c1 and c2.
@@ -292,91 +457,3 @@ def fast_riemann(y, delta_x=1, q=-0.5, c1=8, c2=2):
             s[i] = s[i] * w1[i] + y[k] * w2[i]
             R[k] = R[k] + s[i]
     return R
-
-
-# def transonic_acceleration(I, delta_x, v=-0.5, alg="g1", backend="pythran"):
-#     r"""
-#     Acceleration by transonic package with following backends:
-
-#     ``python``: Python implementation
-
-#     ``numba``: Numba package with jit(just in time)
-
-#     ``pythran``: Transonic package with numba backend
-#     """
-#     if alg == "frlt":
-#         if backend == "python":
-
-#             @jit(backend="python")
-#             def fast_riemann_python(I, delta_x, v):
-#                 return fast_riemann(I, delta_x, v)
-
-#             return fast_riemann_python(I, delta_x, v)
-
-#         if backend == "numba":
-
-#             @jit(backend="numba")
-#             def fast_riemann_numba(I, delta_x, v):
-#                 return fast_riemann(I, delta_x, v)
-
-#             return fast_riemann_numba(I, delta_x, v)
-
-#         if backend == "pythran":
-
-#             @jit(backend="pythran")
-#             def fast_riemann_pythran(I, delta_x, v):
-#                 return fast_riemann(I, delta_x, v)
-
-#             return fast_riemann_pythran(I, delta_x, v)
-
-#     if alg == "g1":
-#         if backend == "python":
-
-#             @jit(backend="python")
-#             def gruenwald_python(I, delta_x, v):
-#                 return gruenwald(I, delta_x, v)
-
-#             return gruenwald_python(I, delta_x, v)
-
-#         if backend == "numba":
-
-#             @jit(backend="numba")
-#             def gruenwald_numba(I, delta_x, v):
-#                 return gruenwald(I, delta_x, v)
-
-#             return gruenwald_numba(I, delta_x, v)
-
-#         if backend == "pythran":
-
-#             @jit(backend="pythran")
-#             def gruenwald_pythran(I, delta_x, v):
-#                 return gruenwald(I, delta_x, v)
-
-#             return gruenwald_pythran(I, delta_x, v)
-
-#     if alg == "r1":
-#         if backend == "python":
-
-#             @jit(backend="python")
-#             def riemann_python(I, delta_x, v):
-#                 return riemann(I, delta_x, v)
-
-#             return riemann_python(I, delta_x, v)
-
-#         if backend == "numba":
-
-#             @jit(backend="numba")
-#             def riemann_numba(I, delta_x, v):
-#                 return riemann(I, delta_x, v)
-
-#             return riemann_numba(I, delta_x, v)
-
-#         if backend == "pythran":
-
-#             @jit(backend="pythran")
-#             def riemann_pythran(I, delta_x, v):
-#                 return riemann(I, delta_x, v)
-
-#             return riemann_pythran(I, delta_x, v)
-
-#     # return accelerated_function(I, delta_x, v)
