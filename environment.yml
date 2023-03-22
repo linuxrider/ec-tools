@@ -11,5 +11,7 @@ dependencies:
   - pytest
   - pytest-doctestplus
   - scipy
+  - sphinx
   - transonic
-  
+  - pip:
+    - sphinx_rtd_theme
