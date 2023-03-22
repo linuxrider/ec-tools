@@ -16,4 +16,5 @@ dependencies:
   - sphinx
   - transonic
   - pip:
+    - linkchecker
     - sphinx_rtd_theme
