@@ -5,9 +5,16 @@ channels:
 dependencies:
   - black
   - isort
+  - myst-parser
+  - myst-nb
   - numpy
   - pip
   - pylint
   - pytest
   - pytest-doctestplus
   - scipy
+  - sphinx
+  - transonic
+  - pip:
+    - linkchecker
+    - sphinx_rtd_theme
