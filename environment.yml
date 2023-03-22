@@ -5,6 +5,8 @@ channels:
 dependencies:
   - black
   - isort
+  - myst-parser
+  - myst-nb
   - numpy
   - pip
   - pylint
