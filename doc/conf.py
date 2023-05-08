@@ -5,7 +5,7 @@ author = 'the ec-tools authors'
 release = '0.0.1'
 
 
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.todo", "myst_nb"]
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.todo", "myst_nb", "sphinxcontrib.katex"]
 
 source_suffix = {
     '.rst': 'restructuredtext',
@@ -28,5 +28,5 @@ html_context = {
     'display_github': True,
     'github_user': 'echemdb',
     'github_repo': 'ec-tools',
-    'github_version': 'master/doc/',
+    'github_version': 'main/doc/',
 }
