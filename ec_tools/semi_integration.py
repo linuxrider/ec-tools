@@ -45,7 +45,7 @@ The following algorithms (Gruenwald and Riemann & Liouville) are taken from Oldh
 Gruenwald Algorithms
 ^^^^^^^^^^^^^^^^^^^^
 One sort of semi integration was introduced by Gruenwald [3] and 
-Oldham shows in his web ressource 1244 from [1] how this type of semi integration can be applied as an algorithm called G1 algorithm. 
+Oldham shows in his web ressource 1244 from [1] how this type of semi integration can be applied as an algorithm, called G1. 
 
 It can be generally expressed by taking the sum of the discrete function values multiplied with weights :math:`w_i` 
 and then divided by the stepsize:
@@ -55,14 +55,15 @@ and then divided by the stepsize:
 The G1 algorithms is ideal for voltammograms like linear-scan or cyclic versions, where the early signals are small. 
 **Note**, that these algorithms are less suitable for step and pulse varieties, in which the initial currents are large [1].
 
-The weight can be expressed on different ways, often the single weights :math:`w_i` depends on their predecessor :math:`w_{i-1}`. 
-As the factorial expression could lead to an overflow, this algorithm can be simplified.
+The weights can be expressed on different ways. The single weights :math:`w_i` often depends on their predecessor :math:`w_{i-1}`. 
+As the factorial expression could lead to an overflow, this algorithm needs to be simplified.
 
 The **Gruenwald G1 semi integration algorithm** is defined as follows:
 
 :math:`\frac{d^{- 0.5}}{dt^{- 0.5}} f(t) \approx \sqrt{\delta} \sum_{n=1}^{N} w_{N-n} f(n\delta)`
 
-Which can be also displayed in reverse summation to allow an implementation:
+Which can be also displayed in reverse summation to allow a more efficient
+ implementation:
 
 :math:`\frac{d^{- 0.5}}{dt^{- 0.5}} f(t) \approx \sqrt{\delta} \sum_{n=N}^{1} w_{N-n} f(n\delta)`
 
@@ -113,22 +114,14 @@ The general definition for the **R1 semi differentiation** is defined by:
 :math:`\left. \sum_{n=1}^{N-1} \left\{ \sqrt{N-n+1} - 2 \sqrt{N-n} + \sqrt{N-n-1} \right\}f(n\delta) \right]`
 
 
-The general definition for the **R1 semi differentiation** is defined by:
-
-
-:math:`\frac{d^{1/2}}{dt^{1/2}}f(t)=`
-:math:`\frac{2}{\sqrt{\pi\delta}} \left[ f(N\delta) + \left\{ \frac{1}{2\sqrt{N}} - \sqrt{N} + \sqrt{N-1}\right\}f(0) +\right.` 
-:math:`\left.\sum_{n=1}^{N-1} \left\{ \sqrt{N-n+1} - 2 \sqrt{N-n} + \sqrt{N-n-1} \right\}f(n\delta) \right]`
-
-
-
 Fast Riemann
 ^^^^^^^^^^^^
+
 The following algorithm was introduced by Pajkossy et al. in 1984 [2] and is based on the Riemann-Liouville transformation (RLT). 
 Its big advantage is, that the computation time increases only linearly with the number of points (N). 
 Here it is necessary to define some input variables (beside the t & I(t) data), where q is equal to v, describing a semi integration or semi differentiation. 
 :math:`\Delta_t` defines the constant time intervall (i.e. :math:`t_2 - t_1`) and :math:`c_1, c_2` are constant values,
-which we set by default to :math:`c_1=8, c_2=2` (but still changeable). With these variables, the procedure of the algorithm can be described as pseudo code:
+which we set by default to :math:`c_1=8, c_2=2`, as Pajkossy recommends (but are still changeable). With these variables, the procedure of the algorithm can be described as pseudo code:
 
 **Input** 
 :math:`q, N, \Delta_t, c_1, c_2, I`
@@ -164,14 +157,11 @@ which we set by default to :math:`c_1=8, c_2=2` (but still changeable). With the
 Here, :math:`R` represents the calculated semi integral, i.e. :math:`R \approx \frac{d^{v}}{dt^{v}} I(t)`.
 
 """
-
 import numpy as np
 from transonic import jit
 
 
-def semi_integration(
-    y, x, v=-0.5, alg="frlt", transonic_backend="transonic", d_tol=1e-5
-):
+def semi_integration(y, x, v=-0.5, alg="frlt", transonic_backend="pythran", d_tol=1e-5):
     r"""
     To perform a semi integration (``v`` =-0.5) or semi differentiation (``v`` =0.5)
     on given data (``y`` and ``t`` ) with speed up by transonic (with numba or pythran backend) or without simply using python
@@ -179,7 +169,7 @@ def semi_integration(
 
     Available algorithms (``alg`` ):
 
-    ``frlt``: Fast Test Riemann-Liouville transformation
+    ``frlt``: Fast Riemann-Liouville transformation (default)
 
     ``g1``: Gruenwald
 
@@ -187,12 +177,13 @@ def semi_integration(
 
     Available settings (``transonic_backend`` ):
 
-    ``python``: Python implementation
+    ``python``: Transonic package with python backend (default)
 
-    ``numba``: Numba package with jit(just in time)
+    ``numba``: Transonic package with numba backend
 
-    ``pythran``: Transonic package with numba backend
+    ``pythran``: Transonic package with pythran backend
 
+    If steps are not equally spaced, ``d_tol`` (by default: 1e-5) defines the maximum step size difference on average.
     """
 
     # Calc average step size
@@ -286,7 +277,7 @@ def semi_integration(
             return riemann_pythran(y, delta_x, v)
 
 
-def gruenwald(I, delta_x, v=-0.5):
+def gruenwald(y, delta_x, v=-0.5):
     """
     Gruenwald Algorithm
     ^^^^^^^^^^^^^^^^^^^
@@ -294,6 +285,14 @@ def gruenwald(I, delta_x, v=-0.5):
     Implementation of the Gruenwald algorithm for
     semi-integration (``v`` =-0.5) and semi-differentiation (``v`` =0.5)
     based on Oldham: [1]
+
+    Input:
+
+    ``y``: y-values
+
+    ``delta_x``: step size (i.e. x2-x1)
+
+    ``v``: -0.5 (default) or in range -1 < v < 1
 
     EXAMPLES:
 
@@ -318,22 +317,25 @@ def gruenwald(I, delta_x, v=-0.5):
     True
 
     """
+    if v != (-0.5 or 0.5):
+        print("\nWarning: algorithm is only tested for v=0.5 and v=-0.5.")
+        print("         Other values for v are not verified!\n")
 
     # No. of steps
-    n_max = I.size
+    n_max = y.size
     # initialize with zeros
     g_1 = np.zeros(n_max)
     for N in range(1, n_max + 1):
         # value for n = N with w0 = 1
-        g_i = I[0]
+        g_i = y[0]
         #      go from N to 0
         for i in range(N - 1, 0, -1):
-            g_i = g_i * (1 - (v + 1) / i) + I[N - i]
+            g_i = g_i * (1 - (v + 1) / i) + y[N - i]
         g_1[N - 1] = g_i * np.sqrt(delta_x)
     return g_1
 
 
-def riemann(y, delta_x, q=-0.5):
+def riemann(y, delta_x, v=-0.5):
     """
 
     Riemann Algorithm
@@ -342,6 +344,14 @@ def riemann(y, delta_x, q=-0.5):
     Implementation of the Riemann algorithm for
     semi-integration (``v`` =-0.5) and semi-differentiation (``v`` =0.5)
     based on Oldham: [1]
+
+    Input:
+
+    ``y``: y-values
+
+    ``delta_x``: step size (i.e. x2-x1)
+
+    ``v``: -0.5 (default) or 0.5
 
     EXAMPLES:
 
@@ -367,26 +377,31 @@ def riemann(y, delta_x, q=-0.5):
 
     """
 
+    if v not in (0.5, -0.5):
+        raise ValueError(
+            "\nError: This algorithm accept right now only v=0.5 and v=-0.5."
+        )
+
     # No. of steps
     n_max = y.size
     # initialize with zeros
     r_1 = np.zeros(n_max)
 
-    if q == -0.5:
+    if v == -0.5:
         sqrt_d_pi = (4 / 3) * np.sqrt(delta_x / np.pi)
-    elif q == 0.5:
+    elif v == 0.5:
         sqrt_d_pi = 2 / np.sqrt(delta_x * np.pi)
 
     for N in range(1, n_max + 1):
         r_i = 0
         for i in range(1, N):
             r_i += y[i - 1] * (
-                (N - i + 1) ** (1 - q) - 2 * (N - i) ** (1 - q) + (N - i - 1) ** (1 - q)
+                (N - i + 1) ** (1 - v) - 2 * (N - i) ** (1 - v) + (N - i - 1) ** (1 - v)
             )
 
         r_1[N - 1] = sqrt_d_pi * (
             y[N - 1]
-            + y[0] * ((1 - q) * N ** (-q) - N ** (1 - q) + (N - 1) ** (1 - q))
+            + y[0] * ((1 - v) * N ** (-v) - N ** (1 - v) + (N - 1) ** (1 - v))
             + r_i
         )
 
@@ -400,13 +415,18 @@ def fast_riemann(y, delta_x=1, q=-0.5, c1=8, c2=2):
     ^^^^^^^^^^^^^^^^^^^^^^
 
     Implementation of the fast Riemann algorithm for semi-integration.
-    based on Pajkossy et al [2]
+    based on Pajkossy et al [2]. Return the semiintegral R of order q for y
+    with the x interval delta_x and the filter constants c1 and c2.
 
-    Return the semiintegral R of order q for y with the x interval delta_x and the filter constants
-    c1 and c2.
+    Input:
 
-    Semi-integrating two times with order q = -0.5 should give the same result as integrating once.
-    The relative error should not exceed 0.25 percent for 1000 and 0.5 percent per 10000 integration steps.
+    ``y``: y-values
+
+    ``delta_x``: step size (i.e. x2-x1), by default 1
+
+    ``v``: -0.5 (default) or 1 < q < 0
+
+    ``c1, c2``: filter constants (default c1: 8, c2: 2)
 
     EXAMPLES:
 
@@ -424,6 +444,15 @@ def fast_riemann(y, delta_x=1, q=-0.5, c1=8, c2=2):
     True
 
     """
+
+    if q > 0:
+        raise ValueError(
+            "This algorithm works right now only for semi integration, i.e. (q<0)"
+        )
+
+    if q != -0.5:
+        print("\nWarning: algorithm is only tested for v=0.5 and v=-0.5.")
+        print("         Other values for v are not verified!\n")
 
     def prepare_kernel(q, delta_x, N, c1, c2):
         r"""
