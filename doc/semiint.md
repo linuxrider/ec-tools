@@ -252,7 +252,23 @@ The last composition test considers the fast Riemann again, but now with modifie
 
 ### Performance Test
 
-TBA
+The performance test is intended to provide an insight into the required computing time for the implemented algorithms. Beside the direct access of each algorithm, a generalized access with the “semi_integration” function allows to speed up the calculation with the help of the transonic package. This allows three different backends: Python, Numba and Pythran.
+
+In the following, the gaussian distribution was taken as input data and varying step size. The numerical integration (cumulative trapezoid) from the Scipy package was taken as reference. The following image displayed the consumed time for each algorithm and the chosen backend in dependence of the number of elements (No. of step size). 
+
+![../benchmark/images/benchmark_time.png](../benchmark/images/benchmark_time.png) 
+
+The time performance plot displays semi logarithmic the required time for the algorithm of Riemann (red), Gruenwald (blue) and for fast Riemann (green). The symbols define the chosen setting, i.e. with transonic backend Python (dot), Numba (cross) or Pythran (plus).
+
+The Riemann requires with all implementations the longest computation time, while the Gruenwald shows a better performance. Here the application of the numba and pythran backends allow to decrease the time up to two orders, compared to the python backend. The fast Riemann shows the best performance and especially with the numba and pythran backend it seems to have nearly no time increase with the chosen element sizes.
+
+![../benchmark/images/benchmark_abs_err.png](../benchmark/images/benchmark_abs_err.png) 
+
+The next figure (above) shows the evolution of the maximum absolute error for each algorithm in a semilogarithmic plot. Here the color and symbols represent the same algorithms and settings like in the time performance test. Generally, the calculated error should only depend on the algorithm and not on the chosen setting, which can be seen in the plot. The fast Riemann shows an increasing graph with the highest error, similar to the accuracy tests. Both, the Gruenwald and the Riemann show a decreasing absolute error. Related to that shows the Gruenwald the best absolute error behavior. Now it is still necessary to consider the relative error.
+
+![../benchmark/images/benchmark_rel_err.png](../benchmark/images/benchmark_rel_err.png) 
+
+Therefore, the figure above shows the maximum relative error plotted semi logarithmic along the number of elements. Colors and symbols still contain the same algorithms and settings. The relative error depends, similar to the absolute error, only on the chosen algorithm. The Riemann shows the worst error, as already observed in the accuracy test. The absolute error of the fast Riemann shows a much lower error, which decreases up to 5000 elements and then increases slightly. The Gruenwald implementation shows the smallest relative error, which decreases with increasing elements.
 
 ## References
 
