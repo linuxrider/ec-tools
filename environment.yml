@@ -1,4 +1,4 @@
-name: python
+name: ec-tools-dev
 channels:
   - conda-forge
   - defaults
@@ -7,13 +7,17 @@ dependencies:
   - isort
   - myst-parser
   - myst-nb
+  - numba
   - numpy
   - pip
   - pylint
   - pytest
   - pytest-doctestplus
+  - pythran
   - scipy
   - sphinx
+  - sphinxcontrib-bibtex
+  - sphinx-autobuild
   - transonic
   - pip:
     - linkchecker
