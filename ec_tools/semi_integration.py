@@ -1,13 +1,14 @@
 r"""
 The differentiation and the integration are common mathematical operations. 
-The differentiation of an arbitrary function is often expressed by :math:`\frac{d}{dt} f(x)`.
-Interestingly, the integration can also be expressed in a similar way:
+The differentiation of an arbitrary function is often expressed by :math:`\frac{\mathrm{d}}{\mathrm{d}x} f(x)`.
+Interestingly, the integration can also be defined in a similar way:
 
-:math:`\frac{d^{-1}}{dt^{-1}} f(x)= \int_0^t f(\tau) d\tau`
+.. math:: \frac{\mathrm{d}^{-1}}{\mathrm{d}x^{-1}} f(x)= \int_0^x f(\tau) \mathrm{d}\tau
 
-Therefore, these operations can be displayed in a more general way by:
+Here it must be considered that a lower limit must be defined so that the integral is completely defined.
+These operations can be then displayed in a more general way by:
 
-:math:`\frac{d^{v}}{dt^{v}} f(x) = \int_0^t f(\tau) d\tau`
+.. math:: \frac{\mathrm{d}^{v}}{\mathrm{d}x^{v}} f(x) = \int_0^x f(\tau) \mathrm{d}\tau
 
 With:
 
@@ -15,57 +16,56 @@ With:
 
 * :math:`v=-1`: Integration
 
-Let's now introduce the so-called semi-operators. For :math:`v=1/2` we have the seimi differentiation and
-(more interestingly for us) with :math:`v=-1/2` the seimi integration. 
-The following picture visualize the idea of the semi integration and the semi differentiation.
+The so-called semi-operators are :math:`v=\frac{1}{2}` for semi differentiation and :math:`v=-\frac{1}{2}` for semi integration. 
+The following figure visualizes the idea of semi integration and semi differentiation.
 
 .. image:: ../doc/files/images/semidif.png
   :width: 600
   :alt: Image 
 
-The figure shows, that a semi integration of a peak function (bottom left) results in a hybrid function (top) and 
-by performing another semi integration it brings a wave function (bottom right), which is equal to 
-perform a "full" integration of the peak function. The opposide direction is similar, 
-expect that a semi differentiation, respectively a "full" differentiation is performed instead.
-  
-**Semi Integration Methods**
+A semi integration of a peak function (bottom left) results in a hybrid function (top) and 
+by applying another semi integration it is tranformed into a wave-like function (bottom right), which is equal to 
+performing a regular integration of the peak function. The operations in opposite direction are analog, 
+except that semi differentiations and a regular differentiation are performed, respectively.
 
-Now we introduce some methods to apply the semi integration, resp. differentiation. 
-These computations needs generally discrete values, i.e. the function graph (like above) has to be seperated into discrete finite values:
+Semi Integration Methods
+------------------------
+Several methods exist for applying semi integration and semi differentiation, respectively. 
+These computations generally need discrete values, i.e. the function graph (see above) has to be seperated into discrete finite values:
 
-:math:`f(0), f(\delta), ..., f((N-1)\delta), f(N\delta)`
+.. math:: f(0), f(\delta), ..., f((N-1)\delta), f(N\delta)
 
-Here we assume that the step size :math:`\delta` is equidistant, meaning for a fixed set of x-Values N:
+It is assumed that the step size :math:`\delta` is equidistant, meaning for a fixed set of x-Values N:
 
-:math:`\delta = \frac{x_N}{N}`
+.. math:: \delta = \frac{x_N}{N}
 
-The following algorithms (Gruenwald and Riemann & Liouville) are taken from Oldham in [1] and the fast Riemann from Pajkossy et. al. in [2].
+The following algorithms (Gruenwald and Riemann & Liouville) are taken from Oldham in :cite:p:`oldham_fractional_2006` and the fast Riemann from Pajkossy et. al. in :cite:p:`pajkossy_fast_1984_65`.
 
 
 Gruenwald Algorithms
 ^^^^^^^^^^^^^^^^^^^^
-One sort of semi integration was introduced by Gruenwald [3] and 
-Oldham shows in his web ressource 1244 from [1] how this type of semi integration can be applied as an algorithm, called G1. 
+One method of semi integration was introduced by Gruenwald :cite:p:`grunwald_uber_1867_441` and
+Oldham shows in his web ressource 1244 from :cite:p:`oldham_electrochemical_2013` how this type of semi integration can be applied as an algorithm, called G1.
 
-It can be generally expressed by taking the sum of the discrete function values multiplied with weights :math:`w_i` 
-and then divided by the stepsize:
+It can be generally expressed by the sum of the discrete function values multiplied with weights :math:`w_n` 
+divided by the stepsize:
 
-:math:`\frac{d^{\pm 0.5}}{dt^{\pm 0.5}} f(t) =\frac{1}{\delta^{\pm 0.5}} \sum_{n=0}^{N-1} w_n f(n\delta)`
+.. math:: \frac{\mathrm{d}^{\pm 0.5}}{\mathrm{d}t^{\pm 0.5}} f(t) =\frac{1}{\delta^{\pm 0.5}} \sum_{n=0}^{N-1} w_n f(n\delta)
 
-The G1 algorithms is ideal for voltammograms like linear-scan or cyclic versions, where the early signals are small. 
-**Note**, that these algorithms are less suitable for step and pulse varieties, in which the initial currents are large [1].
+The G1 algorithm is ideal for (cyclic) voltammograms, where the early signals are small. 
+**Note**, that these algorithms are less suitable for step and pulse techniques, in which the initial currents are large :cite:p:`oldham_electrochemical_2013`.
 
-The weights can be expressed on different ways. The single weights :math:`w_i` often depends on their predecessor :math:`w_{i-1}`. 
-As the factorial expression could lead to an overflow, this algorithm needs to be simplified.
+The weights can be expressed in different ways. The single weights :math:`w_n` often depend on their predecessor :math:`w_{n-1}`. 
+As the factorial expression could lead to an computive intensive overflow, this algorithm needs to be simplified.
 
 The **Gruenwald G1 semi integration algorithm** is defined as follows:
 
-:math:`\frac{d^{- 0.5}}{dt^{- 0.5}} f(t) \approx \sqrt{\delta} \sum_{n=1}^{N} w_{N-n} f(n\delta)`
+.. math:: \frac{\mathrm{d}^{- 0.5}}{\mathrm{d}t^{- 0.5}} f(t) \approx \sqrt{\delta} \sum_{n=1}^{N} w_{N-n} f(n\delta)
 
 Which can be also displayed in reverse summation to allow a more efficient
- implementation:
+implementation:
 
-:math:`\frac{d^{- 0.5}}{dt^{- 0.5}} f(t) \approx \sqrt{\delta} \sum_{n=N}^{1} w_{N-n} f(n\delta)`
+.. math:: \frac{\mathrm{d}^{- 0.5}}{\mathrm{d}t^{- 0.5}} f(t) \approx \sqrt{\delta} \sum_{n=N}^{1} w_{N-n} f(n\delta)
 
 With:
 
@@ -75,7 +75,7 @@ With:
 
 The previous definition can also be applied as  **Gruenwald G1 semi differentiation algorithm** with some changes:
 
-:math:`\frac{d^{0.5}}{dt^{0.5}} f(t) \approx \frac{1}{\sqrt{\delta}} \sum_{n=0}^{N-1} w_{N-n} f(n\delta)`
+.. math:: \frac{\mathrm{d}^{0.5}}{\mathrm{d}t^{0.5}} f(t) \approx \frac{1}{\sqrt{\delta}} \sum_{n=0}^{N-1} w_{N-n} f(n\delta)
 
 With:
 
@@ -87,74 +87,49 @@ With:
 Riemann and Liouville Algorithms
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Another sort to determine the semi integral was introduced by Riemann and Liouville [4] and 
-described by Oldham in [1] as R1 algorithm in his web ressource 1244. 
+Another method to determine the semi integral was introduced by Riemann and Liouville :cite:p:`riemann_versuch_2013_331` and 
+described by Oldham in :cite:p:`oldham_electrochemical_2013` as R1 algorithm in his web ressource 1244. 
 These sort of algorithms are mainly straightforward general-purpose algorithms.
 
-The algorithm (from Web1242) for the **R1 semi integration** is:
+The algorithm for the **R1 semi integration** is defined by:
 
-:math:`\frac{d^{-1/2}}{dt^{-1/2}}f(t)=`
+.. math:: 
 
-:math:`\frac{4}{3} \sqrt{\frac{\delta}{\pi}} \left[ f(N\delta) + \left\{ \frac{3}{2}\sqrt{N} - N^{3/2} + (N-1)^{3/2} \right\}f(0) + \right.`
-:math:`\left.\sum_{n=1}^{N-1} \left\{ (N-n+1)^{3/2} - 2 (N-n)^{3/2} + (N-n-1)^{3/2} \right\}f(n\delta) \right]`
+   \frac{\mathrm{d}^{-\frac{1}{2}}}{\mathrm{d}t^{-\frac{1}{2}}}f(t) = \frac{4}{3} \sqrt{\frac{\delta}{\pi}} \left[ f(N\delta) + \left\{ \frac{3}{2}\sqrt{N} - N^\frac{3}{2} + (N-1)^\frac{3}{2} \right\}f(0) \right.\\
 
-The R1 algorithms are not usable for application to currents that arise from potential steps or leaps [1], as:
+   \left. + \sum_{n=1}^{N-1} \left\{ (N-n+1)^\frac{3}{2} - 2 (N-n)^\frac{3}{2} + (N-n-1)^\frac{3}{2} \right\}f(n\delta) \right]
 
-1. The large current at t=0, immediately following the step is impossible to measure accurately and even if it would be possible,\
-it is likely to be largely composed of a chemically uninteresting nonfaradaic component. But the algorithm still require a value of f(0).
+Similar to the G1 algorithm is the R1 for semi integration and semi differentiation not usable for application to currents that arise from potential steps or leaps :cite:p:`oldham_electrochemical_2013`, as:
 
-2. The algorithm is based on the assumption that f(t) can be treated as an assemblage of linear segments, 
-whereas faradaic currents arising from a potential step and are decidedly nonlinear with time. 
+#. The large current at :math:`t=0`, immediately following the step is impossible to measure accurately and even if it would be possible,
+   it is likely to be largely composed of a chemically uninteresting non-faradaic component. But the algorithm still require a value of :math:`f(0)`.
 
-The general definition for the **R1 semi differentiation** is defined by:
+#. The algorithm is based on the assumption that :math:`f(t)` can be treated as an assemblage of linear segments, 
+   whereas faradaic currents arising from a potential step and are non-linear with time. 
 
-:math:`\frac{d^{1/2}}{dt^{1/2}}f(t)=`
+The general definition for the **R1 semi differentiation** is:
 
-:math:`\frac{2}{\sqrt{\pi\delta}} \left[ f(N\delta) + \left\{ \frac{1}{2\sqrt{N}} - \sqrt{N} + \sqrt{N-1}\right\}f(0) +\right.`
-:math:`\left. \sum_{n=1}^{N-1} \left\{ \sqrt{N-n+1} - 2 \sqrt{N-n} + \sqrt{N-n-1} \right\}f(n\delta) \right]`
+.. math::
+
+   \frac{\mathrm{d}^{\frac{1}{2}}}{\mathrm{d}t^{\frac{1}{2}}}f(t) = \frac{2}{\sqrt{\pi\delta}} \left[ f(N\delta) + \left\{ \frac{1}{2\sqrt{N}} - \sqrt{N} + \sqrt{N-1}\right\}f(0) \right.\\
+
+   \left. + \sum_{n=1}^{N-1} \left\{ \sqrt{N-n+1} - 2 \sqrt{N-n} + \sqrt{N-n-1} \right\}f(n\delta) \right]
 
 
 Fast Riemann
 ^^^^^^^^^^^^
 
-The following algorithm was introduced by Pajkossy et al. in 1984 [2] and is based on the Riemann-Liouville transformation (RLT). 
-Its big advantage is, that the computation time increases only linearly with the number of points (N). 
-Here it is necessary to define some input variables (beside the t & I(t) data), where q is equal to v, describing a semi integration or semi differentiation. 
-:math:`\Delta_t` defines the constant time intervall (i.e. :math:`t_2 - t_1`) and :math:`c_1, c_2` are constant values,
-which we set by default to :math:`c_1=8, c_2=2`, as Pajkossy recommends (but are still changeable). With these variables, the procedure of the algorithm can be described as pseudo code:
+The following algorithm was introduced by Pajkossy et al. in 1984 :cite:p:`pajkossy_fast_1984_65` and is based on the Riemann-Liouville transformation (RLT). 
+Its big advantage is, that the computation time increases only linearly with the number of points (:math:`N`). 
+Here it is necessary to define some input variables (besides :math:`t` and :math:`I(t)` data), where :math:`q` is equal to :math:`v`, describing a semi integration or semi differentiation. 
+:math:`\delta_t` defines the constant time intervall (i.e. :math:`t_2 - t_1`) and :math:`c_1, c_2` are constant values,
+which is set to :math:`c_1=8, c_2=2` by default, as recommended by Pajkossy. With these variables, the  algorithm can be described as pseudo code:
 
-**Input** 
-:math:`q, N, \Delta_t, c_1, c_2, I`
+.. image:: ../test/data/images/alg_fast_riemann.png
+  :width: 500
+  :alt: Image
 
-:math:`t_0 = \Delta_t N^{1/2}` 
-
-:math:`a_0 = \sin(\pi q)/(\pi qt_0^q)`
-
-**For** :math:`i = 0,2c_1c_2`
-
-    :math:`j = i-c_1c_2`
-    
-    :math:`a_j = (a_0/c_2)\exp(j/c_2)`
-
-    :math:`t_j = t_0 \exp(-j/qc_2)`
-
-    :math:`w_1(i) = t_j / (\Delta_t + t_j)`
-
-    :math:`w_2(i) = a_j(1-w_1(i))`
-
-    :math:`s(i) = 0`
-
-**For** :math:`k=1,N`
-
-    :math:`R(k)=0`
-    
-    **For** :math:`i=0,2c_1c_2`
-    
-        :math:`s(i)= s(i)w_1(i) + I(k)w_2(i)`
-
-        :math:`R(k) = R(k) + s(i)`
-
-Here, :math:`R` represents the calculated semi integral, i.e. :math:`R \approx \frac{d^{v}}{dt^{v}} I(t)`.
+Here, :math:`R` represents the calculated semi integral, i.e. :math:`R \approx \frac{\mathrm{d}^{v}}{\mathrm{d}t^{v}} I(t)`.
 
 """
 import numpy as np
@@ -163,9 +138,9 @@ from transonic import jit
 
 def semi_integration(y, x, v=-0.5, alg="frlt", transonic_backend="pythran", d_tol=1e-5):
     r"""
-    To perform a semi integration (``v`` =-0.5) or semi differentiation (``v`` =0.5)
-    on given data (``y`` and ``t`` ) with speed up by transonic (with numba or pythran backend) or without simply using python
-    different methods are implemented.
+    Perform a semi integration (``v`` :math:`=-0.5`) or semi differentiation (``v`` :math:`=0.5`)
+    on given data (``y`` and ``t`` ), optionally with speed up by transonic (with numba or pythran backend), with
+    method ``alg``.
 
     Available algorithms (``alg`` ):
 
@@ -175,7 +150,7 @@ def semi_integration(y, x, v=-0.5, alg="frlt", transonic_backend="pythran", d_to
 
     ``r1``: Riemann and Liouville
 
-    Available settings (``transonic_backend`` ):
+    Available backends (``transonic_backend`` ):
 
     ``python``: Transonic package with python backend (default)
 
@@ -183,7 +158,7 @@ def semi_integration(y, x, v=-0.5, alg="frlt", transonic_backend="pythran", d_to
 
     ``pythran``: Transonic package with pythran backend
 
-    If steps are not equally spaced, ``d_tol`` (by default: 1e-5) defines the maximum step size difference on average.
+    If steps are not equally spaced, ``d_tol`` (by default: :math:`1 \cdot 10^{-5}`) defines the maximum relational difference between individual step and the average step size.
     """
 
     # Calc average step size
@@ -283,8 +258,8 @@ def gruenwald(y, delta_x, v=-0.5):
     ^^^^^^^^^^^^^^^^^^^
 
     Implementation of the Gruenwald algorithm for
-    semi-integration (``v`` =-0.5) and semi-differentiation (``v`` =0.5)
-    based on Oldham: [1]
+    semi-integration (``v`` :math:`=-0.5`) and semi-differentiation (``v``:math:` =0.5`)
+    based on Oldham :cite:p:`oldham_electrochemical_2013`.
 
     Input:
 
@@ -292,12 +267,12 @@ def gruenwald(y, delta_x, v=-0.5):
 
     ``delta_x``: step size (i.e. x2-x1)
 
-    ``v``: -0.5 (default) or in range -1 < v < 1
+    ``v``: :math:`-0.5` (default) or in range :math:`-1 < v < 1`
 
     EXAMPLES:
 
-    Simple examples to compare the alg by a "double" semi-integration (i.e. resulting in a normal integration)
-    with a numerical full integration from scipy. First one with linear graph for y:
+    Simple examples to verify the algorithm by applying semi-integration twice (i.e. resulting in a normal integration)
+    and comparing the result with a numerical integration from scipy. First, the input data is a function with constant :math:`y`:
 
     >>> from scipy.integrate import cumulative_trapezoid
     >>> x = np.linspace(0,1000, 1001)
@@ -342,8 +317,8 @@ def riemann(y, delta_x, v=-0.5):
     ^^^^^^^^^^^^^^^^^
 
     Implementation of the Riemann algorithm for
-    semi-integration (``v`` =-0.5) and semi-differentiation (``v`` =0.5)
-    based on Oldham: [1]
+    semi-integration (``v`` :math:`=-0.5`) and semi-differentiation (``v``:math:` =0.5`)
+    based on Oldham :cite:p:`oldham_electrochemical_2013`.
 
     Input:
 
@@ -355,8 +330,8 @@ def riemann(y, delta_x, v=-0.5):
 
     EXAMPLES:
 
-    Simple examples to compare the alg by a "double" semi-integration (i.e. resulting in a normal integration)
-    with a numerical full integration from scipy. First one with linear graph for y:
+    Simple examples to verify the algorithm by applying semi-integration twice (i.e. resulting in a normal integration)
+    and comparing the result with a numerical integration from scipy. First, the input data is a function with constant :math:`y`:
 
     >>> from scipy.integrate import cumulative_trapezoid
     >>> x = np.linspace(0,1000, 1001)
@@ -365,7 +340,7 @@ def riemann(y, delta_x, v=-0.5):
     >>> np.allclose(riemann(riemann(y,delta_x),delta_x)[:-1], cumulative_trapezoid(y,x), rtol=1e-0)
     True
 
-    Second test with more application-related values from a gaussian distribution function (from scipy):
+    Second, test with more application-related values from a gaussian distribution function (from scipy):
 
     >>> from scipy.stats import norm
     >>> from scipy.integrate import cumulative_trapezoid
@@ -415,8 +390,8 @@ def fast_riemann(y, delta_x=1, q=-0.5, c1=8, c2=2):
     ^^^^^^^^^^^^^^^^^^^^^^
 
     Implementation of the fast Riemann algorithm for semi-integration.
-    based on Pajkossy et al [2]. Return the semiintegral R of order q for y
-    with the x interval delta_x and the filter constants c1 and c2.
+    based on Pajkossy et al :cite:p:`pajkossy_fast_1984_65`. Return the semiintegral R of order :math:`q` for :math:`y`
+    with the :math:`x` interval :math:`\delta_x` and the filter constants :math:`c_1` and :math:`c_2`.
 
     Input:
 
@@ -429,6 +404,8 @@ def fast_riemann(y, delta_x=1, q=-0.5, c1=8, c2=2):
     ``c1, c2``: filter constants (default c1: 8, c2: 2)
 
     EXAMPLES:
+    Simple examples to verfiy the algorithm by applying semi-integration twice (i.e. resulting in a normal integration)
+    and comparing the result with a numerical integration from scipy. First, the input data is a function with constant :math:`y`:
 
     >>> from scipy.integrate import cumulative_trapezoid
     >>> x = np.linspace(0,1000, 1001)
@@ -437,12 +414,31 @@ def fast_riemann(y, delta_x=1, q=-0.5, c1=8, c2=2):
     >>> np.allclose(fast_riemann(fast_riemann(y, delta_x=delta_x), delta_x=delta_x), cumulative_trapezoid(y,x,initial=0), rtol=2.5e-03)
     True
 
+    Second, test with more application-related values from a gaussian distribution function (from scipy):
+
+    >>> from scipy.stats import norm
+    >>> from scipy.integrate import cumulative_trapezoid
+    >>> x = np.linspace(0, 1000, 1001)
+    >>> delta_x = x[1] - x[0]
+    >>> y = norm.pdf(x,500,1)
+    >>> np.allclose(fast_riemann(fast_riemann(y, delta_x=delta_x), delta_x=delta_x), cumulative_trapezoid(y,x,initial=0), rtol=1e-0)
+    True
+
+    Increase the number of samples:
+
     >>> x = np.linspace(0,1000, 10001)
     >>> delta_x = x[1] - x[0]
     >>> y = np.array([1]*10001)
     >>> np.allclose(fast_riemann(fast_riemann(y, delta_x=delta_x), delta_x=delta_x), cumulative_trapezoid(y,x,initial=0), rtol=5e-03)
     True
 
+    >>> from scipy.stats import norm
+    >>> from scipy.integrate import cumulative_trapezoid
+    >>> x = np.linspace(0,1000, 10001)
+    >>> delta_x = x[1] - x[0]
+    >>> y = norm.pdf(x,500,1)
+    >>> np.allclose(fast_riemann(fast_riemann(y, delta_x=delta_x), delta_x=delta_x), cumulative_trapezoid(y,x,initial=0), rtol=1e-0)
+    True
     """
 
     if q > 0:

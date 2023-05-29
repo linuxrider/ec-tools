@@ -5,7 +5,12 @@ author = 'the ec-tools authors'
 release = '0.0.1'
 
 
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.todo", "myst_nb", "sphinxcontrib.katex"]
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.todo", "myst_nb", "sphinxcontrib.katex", "sphinxcontrib.bibtex"]
+
+bibtex_bibfiles = ['refs.bib']
+
+bibtex_default_style = 'plain'
+bibtex_reference_style = 'label'
 
 source_suffix = {
     '.rst': 'restructuredtext',
