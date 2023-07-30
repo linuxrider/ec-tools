@@ -99,7 +99,7 @@ The algorithm for the **R1 semi integration** is defined by:
 
    \left. + \sum_{n=1}^{N-1} \left\{ (N-n+1)^\frac{3}{2} - 2 (N-n)^\frac{3}{2} + (N-n-1)^\frac{3}{2} \right\}f(n\delta) \right]
 
-Similar to the G1 algorithm is the R1 for semi integration and semi differentiation not usable for application to currents that arise from potential steps or leaps :cite:p:`oldham_electrochemical_2013`, as:
+Similar to the G1 algorithm is the R1 for semi integration and semi differentiation. But it is not usable for application to currents that arise from potential steps or leaps :cite:p:`oldham_electrochemical_2013`, as:
 
 #. The large current at :math:`t=0`, immediately following the step is impossible to measure accurately and even if it would be possible,
    it is likely to be largely composed of a chemically uninteresting non-faradaic component. But the algorithm still require a value of :math:`f(0)`.
@@ -138,9 +138,10 @@ from transonic import jit
 
 def semi_integration(y, x, v=-0.5, alg="frlt", transonic_backend="pythran", d_tol=1e-5):
     r"""
-    Perform a semi integration (``v`` :math:`=-0.5`) or semi differentiation (``v`` :math:`=0.5`)
-    on given data (``y`` and ``t`` ), optionally with speed up by transonic (with numba or pythran backend), with
-    method ``alg``.
+    A generalized call is implemented, in which the user can define with ``v`` the operation i.e. semi integration 
+    (``v`` :math:`=-0.5`) or semi differentiation (``v`` :math:`=0.5`) for a predefined dataset (``y`` and ``t``). 
+    Furthermore he can optionally set a flag (``alg``) to select a specific algorithms and with ``transonic_backend`` 
+    he apply a speed up by transonic (with numba or pythran backend).
 
     Available algorithms (``alg`` ):
 
@@ -158,7 +159,8 @@ def semi_integration(y, x, v=-0.5, alg="frlt", transonic_backend="pythran", d_to
 
     ``pythran``: Transonic package with pythran backend
 
-    If steps are not equally spaced, ``d_tol`` (by default: :math:`1 \cdot 10^{-5}`) defines the maximum relational difference between individual step and the average step size.
+    ``d_tol`` (by default: :math:`1 \cdot 10^{-5}`) defines the maximum relational difference between individual step 
+    and the average step size. It can be modified, if the time steps are not equally spaced.
     """
 
     # Calc average step size

@@ -11,10 +11,11 @@ from ec_tools import semi_integration as si
 
 
 # define which set of images should be ploted and saved
-PRINT_ACCURACY = False
+PRINT_ACCURACY_SEMI = False
+PRINT_ACCURACY_FULL = False
 PRINT_ACCURACY_REL = False
 
-if PRINT_ACCURACY:
+if PRINT_ACCURACY_SEMI:
     N = 1000
     x = np.linspace(0, 10, N)
     V = -0.5
@@ -108,6 +109,98 @@ if PRINT_ACCURACY:
     plt.legend(fontsize=18)
     plt.savefig("".join(["data/images/Accuracy_x2.png"]), dpi=300)
 
+if PRINT_ACCURACY_FULL:
+    N = 1000
+    x = np.linspace(0, 10, N)
+    V = -0.5
+
+    # f = const
+    C = 1
+    y1 = np.ones(N) * C
+    ref1 = x[1:]
+    delta = x[1] - x[0]
+
+    # f = x
+    y2 = x
+    ref2 = 0.5*x**2
+    ref2 = ref2[1:]
+
+    # f=x^2
+    y3 = x**2
+    ref3 = (1/3)*x**3
+    ref3 = ref3[1:]
+
+    # numerical full integration
+    T1 = cumulative_trapezoid(y1, x)
+    T2 = cumulative_trapezoid(y2, x)
+    T3 = cumulative_trapezoid(y3, x)
+
+    # Apply algorithms
+    G1 = si.gruenwald(si.gruenwald(y1, delta, V), delta, V)[:-1]
+    R1 = si.riemann(si.riemann(y1, delta, V), delta, V)[:-1]
+    fR1 = si.fast_riemann(si.fast_riemann(y1, delta, V), delta, V)[1:]
+
+    G2 = si.gruenwald(si.gruenwald(y2, delta, V), delta, V)[:-1]
+    R2 =  si.riemann(si.riemann(y2, delta, V), delta, V)[:-1]
+    fR2 = si.fast_riemann(si.fast_riemann(y2, delta, V), delta, V)[1:]
+
+    G3 = si.gruenwald(si.gruenwald(y3, delta, V), delta, V)[:-1]
+    R3 = si.riemann(si.riemann(y3, delta, V), delta, V)[:-1]
+    fR3 = si.fast_riemann(si.fast_riemann(y3, delta, V), delta, V)[1:]
+
+    # calculate rel error
+    errT1 = np.abs(T1 - ref1) / ref1
+    errG1 = np.abs(G1 - ref1) / ref1
+    errR1 = np.abs(R1 - ref1) / ref1
+    errFR1 = np.abs(fR1 - ref1) / ref1
+
+    errT2 = np.abs(T2 - ref2) / ref2
+    errG2 = np.abs(G2 - ref2) / ref2
+    errR2 = np.abs(R2 - ref2) / ref2
+    errFR2 = np.abs(fR2 - ref2) / ref2
+
+    errT3 = np.abs(T3 - ref3) / ref3
+    errG3 = np.abs(G3 - ref3) / ref3
+    errR3 = np.abs(R3 - ref3) / ref3
+    errFR3 = np.abs(fR3 - ref3) / ref3
+
+    # plot f=const
+    plt.semilogy(x[:-1], errG1, "g", linewidth=2.0, label="G1")
+    plt.semilogy(x[:-1], errR1, "b", linewidth=2.0, label="R1")
+    plt.plot(x[:-1], errFR1, "m", linewidth=2.0, label="FR")
+    plt.plot(x[:-1], errT1, "r", linewidth=2.0, label="Trap")
+    plt.title("Accuracy Test (full Integration) with $y=1$", fontsize=20)
+    plt.xlabel(r"$x$", fontsize=18)
+    plt.ylabel("relative error", fontsize=18)
+    plt.tick_params(right=True, top=True, direction="in")
+    plt.legend(fontsize=18)
+    plt.savefig("".join(["data/images/Accuracy_full_C.png"]), dpi=300)
+
+    # plot f=x
+    fig = plt.figure()
+    plt.semilogy(x[:-1], errG2, "g", linewidth=2.0, label="G1")
+    plt.semilogy(x[:-1], errR2, "b", linewidth=2.0, label="R1")
+    plt.plot(x[:-1], errFR2, "m", linewidth=2.0, label="FR")
+    plt.plot(x[:-1], errT2, "r", linewidth=2.0, label="Trap")
+    plt.title("Accuracy Test (full Integration) with $y=x$", fontsize=20)
+    plt.xlabel(r"$x$", fontsize=18)
+    plt.ylabel("relative error", fontsize=18)
+    plt.tick_params(right=True, top=True, direction="in")
+    plt.legend(fontsize=18)
+    plt.savefig("".join(["data/images/Accuracy_full_x.png"]), dpi=300)
+
+    # # plot f=x^2
+    fig = plt.figure()
+    plt.semilogy(x[:-1], errG3, "g", linewidth=2.0, label="G1")
+    plt.semilogy(x[:-1], errR3, "b", linewidth=2.0, label="R1")
+    plt.plot(x[:-1], errFR3, "m", linewidth=2.0, label="FR")
+    plt.plot(x[:-1], errT3, "r", linewidth=2.0, label="Trap")
+    plt.title("Accuracy Test (full Integration) with $y=x^2$", fontsize=20)
+    plt.xlabel(r"$x$", fontsize=18)
+    plt.ylabel("relative error", fontsize=18)
+    plt.tick_params(right=True, top=True, direction="in")
+    plt.legend(fontsize=18)
+    plt.savefig("".join(["data/images/Accuracy_full_x2.png"]), dpi=300)
 
 if PRINT_ACCURACY_REL:
     # Accuracy tests

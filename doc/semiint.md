@@ -20,12 +20,12 @@ The generalized ``semi_integration`` function can be imported and executed by:
 
 ```python
 from ec_tools.semi_integration import semi_integration
-semi_integration(I, t, alg, transonic_backend)
+semi_integration(y, t, alg, transonic_backend)
 ```
 
 The implemented algorithms can be selected by the ``alg`` flag (see above) or 
 the algorithms can be imported and executed individually for more control (see below).
-Since the semi-integration can be more or less computationally intensive the possibility to speed up the computation by relying on the nice `transonic` library is included.
+Since the semi-integration can be more or less computationally intensive the possibility to speed up the computation by relying on the `transonic` library is included.
 
 
 ```{eval-rst}
@@ -70,10 +70,11 @@ res = fast_riemann(I, delta_t, v)
 
 In this chapter the semi-algorithms are tested on simple and more applied functions in order to investigate their accuracy, general functionality and performance regarding time and deviations (absolute and relative errors). 
 ### Accuracy Test
+#### Single Semi Integration
 
 In order to evaluate the general quality of the semi-integration algorithms,
 first some simple functions are considered, i.e. {math}`f = C` (any constant), {math}`f = x` and {math}`f = x^2`.
-From the literature {cite:p}`oldham_fractional_2006` of Oldham, a table in chapter 7.3 (p. 118f) displays 
+Oldham provides in his literature {cite:p}`oldham_fractional_2006` , a table in chapter 7.3 (p. 118f) which displays 
 the resulting semi-differentiation ({math}`v=0.5`) and semi-integration ({math}`v=-0.5`) of different functions. 
 These results are derived by specialization of the rules given in tha chapters 3-6 in {cite:p}`oldham_fractional_2006`.
 The following table shows the results for the chosen cases.
@@ -87,28 +88,51 @@ Furthermore, Oldham provides in his book {cite:p}`oldham_fractional_2006` in cha
 ![../test/data/images/semi_err.png](../test/data/images/semi_err.png) 
 
 
-#### Test 1: {math}`f=1` (constant)
+**Test 1:** {math}`f=1` (constant)
 
-In the first test, the accuracy (relative error) of the implemented algorithms is tested with a constant function ({math}`f=1`) with {math}`1000` steps. 
-The following figure shows the relative error (semi logarithmically) along an x-range. The Gruenwald algorithm (green) exhibits a declining error. The red line visualizes the lower limit for G1, which was mentioned by Oldham (see above table) and is approached with increasing number of steps.
-The Riemann algorithm (blue) has a lower limit of zero in this test case, which implies that its accuracy would increase with a higher number of steps. 
-The purple curve displays the result of the fast Riemann, which seems to increase slightly after a steeper decrease.
+In the first test, the accuracy (relative error) of the implemented algorithms is tested with a constant function ({math}`f=1`) with {math}`1000` steps. The following figure shows the relative error (semi logarithmically) along an x-range. 
+The Gruenwald algorithm (green) exhibits a declining error but does not reach the predicted lower limit (red) from Oldhams table.
+The Riemann algorithm (blue) shows a similiar decrease of the relative error, but does not reach his predicted limit. 
+The lower limit for Rieman is not displayed here, as it should be zero (i.e. exact) for this case.
+The purple curve displays the result of the fast Riemann, which shows first a stronger decrease but then it increases slightly.
 
 ![../test/data/images/Accuracy_C.png](../test/data/images/Accuracy_C.png) 
 
-#### Test 2: {math}`f=x`
+**Test 2:** {math}`f=x`
 
-The next test covers the application on {math}`f=x` with {math}`1000` steps, where the next figure displays the relative error (semi logarithmically) along the {math}`x` values. The Riemann algorithm (blue) is in this case already limited by the machine precision ({math}`\varepsilon_{f64}=2.22 \cdot 10^{-16} `), therefore it fluctuates around {math}`1 \cdot 10^{-15}`. The Gruenwald algorithm seems to have a lower accuracy but approaches the lower limit faster than for the the number of steps must be increased. The fast Riemann (purple) shows a strange behavior. At first the relative error decreases, drops sharply and, increases again. This behavior will be discussed later, as the {math}`c` parameter of that algorithm plays an important role to the accuracy and the time performance.
+The next test covers the application on {math}`f=x`with same other settings like before. The Riemann algorithm (blue) reaches in this case already the machine precision ({math}`\varepsilon_{f64}=2.22 \cdot 10^{-16} `), i.e. it is as accurate as possible with f64 floats. The Gruenwald algorithm (green) reduces down to {math}`10^{-3}` and seems to reach the predicted limit (red). The fast Riemann (purple) shows a strange behavior. At first the relative error decreases, drops sharply and, increases again. This so-called inverted peak will be discussed later, as the {math}`c` parameters of that algorithm play an important role to that behaviour.
 
 ![../test/data/images/Accuracy_x.png](../test/data/images/Accuracy_x.png) 
 
-#### Test 3: {math}`f=x^2`
+**Test 3:** {math}`f=x^2`
 
-The last test with {math}`f=x^2` and {math}`1000` steps is displayed in the following figure. Here, the Gruenwald algorithm (green) behaves similar to the first case and reaches already the mentioned limitation (red). The Riemann algorithm (blue) has a better relative error and seems to approach its predicted limitation (red, dotted). The fast Riemann shows again an dip with subsequent rise similar to the test with {math}`f=x`.
+The last test with {math}`f=x^2` and same other settings steps is displayed in the following figure. Here, the Gruenwald algorithm (green) behaves similar to the first case and reaches already the mentioned limitation (red). The Riemann algorithm (blue) has a stronger decrease and seems to approach its predicted limitation (red, dotted) also. The fast Riemann shows again an inverted peak, similar to the test with {math}`f=x`.
 
 ![../test/data/images/Accuracy_x2.png](../test/data/images/Accuracy_x2.png) 
 
-### Accuracy Test with Realistic Values
+#### Full Integration
+
+The previous Tests show, that all algorithms can perform a single semi-integration under consideration of the accuracy. By performing a semi-integration twice, the result should be the same, like the one from a full integration, e.g. with numerical methods. Therefore, the same functions like before are used as input. The integral for all three cases is also given, as the functions are quite simple. In addition, one numerical integration method (from scipy), namely the cumulative trapezoidal one will be also applied and compared.
+
+**Test 1:** {math}`f=1` (constant)
+
+The first test case considers the constant function as input and all semi-integration methods are applied twice. The next figure shows the relative error (logarithmically) along the x values. Here the Gruenwald algorithm (green) shows results close to the machine precision. Behind that graph is also the graph for the numerical integration (red) hidden, with the same precision. The Riemann algorithm (blue) shows again a steady decease and the fast Riemann (purple) is around {math}`10^{-3}` and increases slowly.
+
+![../test/data/images/Accuracy_x2.png](../test/data/images/Accuracy_full_C.png) 
+
+**Test 2:** {math}`f=x`
+
+With the case of {math}`f=x`, the implemented semi-integration algorithms show nearly the same decrease, except that for fast Riemann (purple) where the inverted peak is visible again. The numerical integration (red) is here close to machine precision, again.
+
+![../test/data/images/Accuracy_x2.png](../test/data/images/Accuracy_full_x.png)
+
+**Test 3:** {math}`f=x^2`
+
+The last test case with {math}`f=x^2` shows similar results like previous. All three implemented semi-integration algorithms are quite similar, except the inverted peak for fast Riemann (purple) and the numerical integration (red) with an relative error, down to less then {math}`10^{-6}`.
+
+![../test/data/images/Accuracy_x2.png](../test/data/images/Accuracy_full_x2.png) 
+
+#### Full Integration with Realistic Values
 
 The previous tests only consider exemplary the accuracy of simple functions. In order to investigate the accuracy at more realistic functions, a gaussian distribution function (by scipy.stats) will be used as input. To evaluate the relative error, the implemented algorithms are applied twice (i.e. ‘full’ integration) and are compared with the results of a numerical integration (by scipy.integrate). 
 
