@@ -138,9 +138,9 @@ from transonic import jit
 
 def semi_integration(y, x, v=-0.5, alg="frlt", transonic_backend="pythran", d_tol=1e-5):
     r"""
-    A generalized call is implemented, in which the user can define with ``v`` the operation i.e. semi integration 
-    (``v`` :math:`=-0.5`) or semi differentiation (``v`` :math:`=0.5`) for a predefined dataset (``y`` and ``t``). 
-    Furthermore he can optionally set a flag (``alg``) to select a specific algorithms and with ``transonic_backend`` 
+    A generalized call is implemented, in which the user can define with ``v`` the operation i.e. semi integration
+    (``v`` :math:`=-0.5`) or semi differentiation (``v`` :math:`=0.5`) for a predefined dataset (``y`` and ``t``).
+    Furthermore he can optionally set a flag (``alg``) to select a specific algorithms and with ``transonic_backend``
     he apply a speed up by transonic (with numba or pythran backend).
 
     Available algorithms (``alg`` ):
@@ -159,7 +159,7 @@ def semi_integration(y, x, v=-0.5, alg="frlt", transonic_backend="pythran", d_to
 
     ``pythran``: Transonic package with pythran backend
 
-    ``d_tol`` (by default: :math:`1 \cdot 10^{-5}`) defines the maximum relational difference between individual step 
+    ``d_tol`` (by default: :math:`1 \cdot 10^{-5}`) defines the maximum relational difference between individual step
     and the average step size. It can be modified, if the time steps are not equally spaced.
     """
 

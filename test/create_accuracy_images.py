@@ -122,12 +122,12 @@ if PRINT_ACCURACY_FULL:
 
     # f = x
     y2 = x
-    ref2 = 0.5*x**2
+    ref2 = 0.5 * x**2
     ref2 = ref2[1:]
 
     # f=x^2
     y3 = x**2
-    ref3 = (1/3)*x**3
+    ref3 = (1 / 3) * x**3
     ref3 = ref3[1:]
 
     # numerical full integration
@@ -141,7 +141,7 @@ if PRINT_ACCURACY_FULL:
     fR1 = si.fast_riemann(si.fast_riemann(y1, delta, V), delta, V)[1:]
 
     G2 = si.gruenwald(si.gruenwald(y2, delta, V), delta, V)[:-1]
-    R2 =  si.riemann(si.riemann(y2, delta, V), delta, V)[:-1]
+    R2 = si.riemann(si.riemann(y2, delta, V), delta, V)[:-1]
     fR2 = si.fast_riemann(si.fast_riemann(y2, delta, V), delta, V)[1:]
 
     G3 = si.gruenwald(si.gruenwald(y3, delta, V), delta, V)[:-1]
