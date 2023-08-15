@@ -355,9 +355,7 @@ def riemann(y, delta_x, v=-0.5):
     """
 
     if v not in (0.5, -0.5):
-        raise ValueError(
-            "\nError: This algorithm accepts only v=0.5 and v=-0.5."
-        )
+        raise ValueError("\nError: This algorithm accepts only v=0.5 and v=-0.5.")
 
     # No. of steps
     n_max = y.size
