@@ -68,13 +68,15 @@ res = fast_riemann(I, delta_t, v)
 
 ## Testing
 
-In this chapter the semi-algorithms are tested on simple and more applied functions in order to investigate their accuracy, general functionality and performance regarding time and deviations (absolute and relative errors). 
+In this section the semi-algorithms are tested on simple and more applied functions in order to investigate their accuracy, general functionality and performance regarding time and deviations (absolute and relative errors). 
+
 ### Accuracy Test
 #### Single Semi Integration
 
 In order to evaluate the general quality of the semi-integration algorithms,
 first some simple functions are considered, i.e. {math}`f = C` (any constant), {math}`f = x` and {math}`f = x^2`.
-Oldham provides in his literature {cite:p}`oldham_fractional_2006` , a table in chapter 7.3 (p. 118f) which displays 
+Oldham provides in his literature {cite:p}`oldham_fractional_2006`, a table in chapter 7.3 (p. 118f) with 
+
 the resulting semi-differentiation ({math}`v=0.5`) and semi-integration ({math}`v=-0.5`) of different functions. 
 These results are derived by specialization of the rules given in tha chapters 3-6 in {cite:p}`oldham_fractional_2006`.
 The following table shows the results for the chosen cases.
@@ -92,7 +94,8 @@ Furthermore, Oldham provides in his book {cite:p}`oldham_fractional_2006` in cha
 
 In the first test, the accuracy (relative error) of the implemented algorithms is tested with a constant function ({math}`f=1`) with {math}`1000` steps. The following figure shows the relative error (semi logarithmically) along an x-range. 
 The Gruenwald algorithm (green) exhibits a declining error but does not reach the predicted lower limit (red) from Oldhams table.
-The Riemann algorithm (blue) shows a similiar decrease of the relative error, but does not reach his predicted limit. 
+The Riemann algorithm (blue) shows a similiar decrease of the relative error, but does not reach its predicted limit. 
+
 The lower limit for Rieman is not displayed here, as it should be zero (i.e. exact) for this case.
 The purple curve displays the result of the fast Riemann, which shows first a stronger decrease but then it increases slightly.
 
@@ -100,7 +103,8 @@ The purple curve displays the result of the fast Riemann, which shows first a st
 
 **Test 2:** {math}`f=x`
 
-The next test covers the application on {math}`f=x`with same other settings like before. The Riemann algorithm (blue) reaches in this case already the machine precision ({math}`\varepsilon_{f64}=2.22 \cdot 10^{-16} `), i.e. it is as accurate as possible with f64 floats. The Gruenwald algorithm (green) reduces down to {math}`10^{-3}` and seems to reach the predicted limit (red). The fast Riemann (purple) shows a strange behavior. At first the relative error decreases, drops sharply and, increases again. This so-called inverted peak will be discussed later, as the {math}`c` parameters of that algorithm play an important role to that behaviour.
+The next test covers the application on {math}`f=x` with same other settings as before. The Riemann algorithm (blue) reaches in this case already the machine precision ({math}`\varepsilon_{f64}=2.22 \cdot 10^{-16} `), i.e. it is as accurate as possible with f64 floats. The Gruenwald algorithm (green) reduces down to {math}`10^{-3}` and seems to reach the predicted limit (red). The fast Riemann (purple) shows a strange behavior. At first the relative error decreases, drops sharply and, increases again. This so-called inverted peak will be discussed later, as the {math}`c` parameters of that algorithm play an important role to that behaviour.
+
 
 ![../test/data/images/Accuracy_x.png](../test/data/images/Accuracy_x.png) 
 
@@ -112,7 +116,8 @@ The last test with {math}`f=x^2` and same other settings steps is displayed in t
 
 #### Full Integration
 
-The previous Tests show, that all algorithms can perform a single semi-integration under consideration of the accuracy. By performing a semi-integration twice, the result should be the same, like the one from a full integration, e.g. with numerical methods. Therefore, the same functions like before are used as input. The integral for all three cases is also given, as the functions are quite simple. In addition, one numerical integration method (from scipy), namely the cumulative trapezoidal one will be also applied and compared.
+The previous Tests show, that all algorithms can perform a single semi-integration with suitable accuracy for many applications. By performing a semi-integration twice, the result should be the same as the one from a full integration with common numerical methods. Therefore, the same functions as before are used as input. The integral for all three cases is also given, as the functions are quite simple. In addition, one numerical integration method (from scipy), namely the cumulative trapezoidal one will be also applied and compared.
+
 
 **Test 1:** {math}`f=1` (constant)
 
@@ -134,7 +139,8 @@ The last test case with {math}`f=x^2` shows similar results like previous. All t
 
 #### Full Integration with Realistic Values
 
-The previous tests only consider exemplary the accuracy of simple functions. In order to investigate the accuracy at more realistic functions, a gaussian distribution function (by scipy.stats) will be used as input. To evaluate the relative error, the implemented algorithms are applied twice (i.e. ‘full’ integration) and are compared with the results of a numerical integration (by scipy.integrate). 
+The previous tests only consider the accuracy of simple functions. In order to investigate the accuracy at more realistic functions, a gaussian distribution function (by scipy.stats) will be used as input. To evaluate the relative error, the implemented algorithms are applied twice (i.e. ‘full’ integration) and are compared with the results of a numerical integration (by scipy.integrate). 
+
 
 Since this case is more realistic than the previous one, the used code is given here step-by-step. First, all necessary packages need to be imported (i.e. numpy, scipy stats and scipy integrate). Afterwards, the x- & y-vales are generated. As the step size is constant, delta can be calculated by the very first values. The resulting test function is displayed below the code.
 
@@ -162,7 +168,8 @@ d2 = si.riemann(si.riemann(y, delta_x), delta_x)
 d3 = si.gruenwald(si.gruenwald(y, delta_x), delta_x)
 ```
 
-These computed integrals (by scipy and by the implemented algorithms) are displayed below and show a wave-like function, as expected from the exemplary image in the fundamental chapter. Here it seems, that all graphs are nearly overlapping. To determine the real differences, the absolute and the relative errors have to be considered.
+These computed integrals (by scipy and by the implemented algorithms) are displayed below and show a wave-like function, as expected from the exemplary image in the fundamental section. Here it seems, that all graphs are nearly overlapping. To determine the real differences, the absolute and the relative errors have to be considered.
+
 
 ![../test/data/images/full_int.png](../test/data/images/full_int.png) 
 
@@ -170,7 +177,8 @@ The following figure shows the absolute error for each algorithm in a semilogari
 
 ![../test/data/images/abserr_1000.png](../test/data/images/abserr_1000.png) 
 
-The relative error is displayed in the figure below. Here, the Riemann algorithm (cyan) has a relative high error in the very first steps and then behaves similar like the Gruenwald (magenta) algorithm by slowly decreasing and dropping at the end. The fast Riemann shows at first also a slow decrease, but then the inverted peak is again visible. This behavior is caused by the predefined {math}`c` parameters of that algorithm (like mentioned previously) and will be examined separately in a subsequent chapter.
+The relative error is displayed in the figure below. Here, the Riemann algorithm (cyan) has a relative high error in the very first steps and then behaves similar like the Gruenwald (magenta) algorithm by slowly decreasing and dropping at the end. The fast Riemann shows at first also a slow decrease, but then the inverted peak is again visible. This behavior is caused by the predefined {math}`c` parameters of that algorithm (like mentioned previously) and will be examined separately in a subsequent section.
+
 
 ![../test/data/images/relerr_1000.png](../test/data/images/relerr_1000.png) 
 

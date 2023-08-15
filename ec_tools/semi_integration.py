@@ -24,7 +24,7 @@ The following figure visualizes the idea of semi integration and semi differenti
   :alt: Image 
 
 A semi integration of a peak function (bottom left) results in a hybrid function (top) and 
-by applying another semi integration it is tranformed into a wave-like function (bottom right), which is equal to 
+by applying another semi integration it is transformed into a wave-like function (bottom right), which is equal to 
 performing a regular integration of the peak function. The operations in opposite direction are analog, 
 except that semi differentiations and a regular differentiation are performed, respectively.
 
@@ -102,7 +102,7 @@ The algorithm for the **R1 semi integration** is defined by:
 Similar to the G1 algorithm is the R1 for semi integration and semi differentiation. But it is not usable for application to currents that arise from potential steps or leaps :cite:p:`oldham_electrochemical_2013`, as:
 
 #. The large current at :math:`t=0`, immediately following the step is impossible to measure accurately and even if it would be possible,
-   it is likely to be largely composed of a chemically uninteresting non-faradaic component. But the algorithm still require a value of :math:`f(0)`.
+   it is likely to be largely composed of a chemically uninteresting non-faradaic component. But the algorithm still requires a value of :math:`f(0)`.
 
 #. The algorithm is based on the assumption that :math:`f(t)` can be treated as an assemblage of linear segments, 
    whereas faradaic currents arising from a potential step and are non-linear with time. 
@@ -356,7 +356,7 @@ def riemann(y, delta_x, v=-0.5):
 
     if v not in (0.5, -0.5):
         raise ValueError(
-            "\nError: This algorithm accept right now only v=0.5 and v=-0.5."
+            "\nError: This algorithm accepts only v=0.5 and v=-0.5."
         )
 
     # No. of steps

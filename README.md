@@ -8,7 +8,7 @@ Installation
 The package can be installed via
 
 ```sh
-pip install ec-tools
+pip install git+https://github.com/echemdb/ec-tools
 ```
 
 Overwiew
