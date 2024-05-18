@@ -6,7 +6,7 @@ channels:
 dependencies:
   - black
   - isort
-  - maturin>=0.13,<0.14
+  - maturin>=1.5,<2.0
   - myst-parser
   - myst-nb
   - numba

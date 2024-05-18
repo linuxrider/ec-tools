@@ -7,8 +7,8 @@ edition = "2021"
 name = "ec_tools.semi_integration_rs"
 
 [dependencies]
-pyo3 = { version = "^0.17", features = ["extension-module"] }
-numpy = "0.17"
+pyo3 = { version = "^0.21", features = ["extension-module"] }
+numpy = "^0.21"
 
 [lib]
 name = "ec_tools"
