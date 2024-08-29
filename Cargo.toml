@@ -3,11 +3,11 @@ name = "ec-tools"
 version = "0.1.0"
 edition = "2021"
 
-[package.metadata.maturin]
-name = "ec_tools.semi_integration_rs"
+# [package.metadata.maturin]
+# name = "ec_tools.semi_integration_rs"
 
 [dependencies]
-pyo3 = { version = "^0.21", features = ["extension-module"] }
+pyo3 = { version = "^0.22", features = ["extension-module"] }
 numpy = "^0.21"
 
 [lib]
