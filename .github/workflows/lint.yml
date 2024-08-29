@@ -20,15 +20,15 @@ jobs:
         run: |
           mamba env update --quiet -n test -f environment.yml
           conda list
-      - name: pylint
+      - name: ruff lint
         shell: bash -l {0}
         run: |
-          pylint ec_tools
-      - name: black
+          ruff check .
+      - name: ruff format
         shell: bash -l {0}
         run: |
-          black --check --diff ec_tools
-      - name: isort
+          ruff format .
+      - name: ruff isort
         shell: bash -l {0}
         run: |
-          isort --check --diff ec_tools
+          ruff check --select I .
