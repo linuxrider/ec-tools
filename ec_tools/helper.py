@@ -3,6 +3,155 @@ Loose collection of helper functions used in several places in the package.
 """
 
 import numpy as np
+import pandas as pd
+import polars as pl
+from enum import Enum
+
+Scan = Enum("Scan", "POS NEG")
+Current = Enum("Current", "ANODIC CATHODIC")
+
+
+def get_peak_maximum_index(
+    df: pl.DataFrame | pl.LazyFrame | pd.DataFrame,
+    potential_limits: list[float],
+    current_direction: Current,
+    scan_number: int,
+    scan_direction: Scan,
+) -> int:
+    if isinstance(df, pl.DataFrame) or isinstance(df, pl.LazyFrame):
+        return get_peak_maximum_index_polars(
+            df, potential_limits, current_direction, scan_number, scan_direction
+        )
+    elif isinstance(df, pd.DataFrame):
+        return get_peak_maximum_index_pandas(
+            df, potential_limits, current_direction, scan_number, scan_direction
+        )
+    else:
+        raise NotImplementedError("Please provide a polars or pandas dataframe.")
+
+
+def get_peak_maximum_index_polars(
+    df: pl.DataFrame,
+    potential_limits: list[float],
+    current_direction: Current,
+    scan_number: int,
+    scan_direction: Scan,
+) -> int:
+    potential_limits.sort()
+    if scan_direction == Scan.NEG and current_direction == Current.ANODIC:
+        res = (
+            df.with_columns(
+                pl.when(
+                    pl.col("scan") == scan_number,
+                    pl.col("E").diff() < 0,
+                    potential_limits[0] < pl.col("E"),
+                    pl.col("E") < potential_limits[1],
+                )
+                .then(True)
+                .otherwise(False)
+            )
+            .with_row_index()
+            .filter(pl.col("literal"))
+            .filter(pl.col("j") == pl.col("j").max())
+        )
+    elif scan_direction == Scan.POS and current_direction == Current.ANODIC:
+        res = (
+            df.with_columns(
+                pl.when(
+                    pl.col("scan") == scan_number,
+                    pl.col("E").diff() > 0,
+                    potential_limits[0] < pl.col("E"),
+                    pl.col("E") < potential_limits[1],
+                )
+                .then(True)
+                .otherwise(False)
+            )
+            .with_row_index()
+            .filter(pl.col("literal"))
+            .filter(pl.col("j") == pl.col("j").max())
+        )
+    elif scan_direction == Scan.NEG and current_direction == Current.CATHODIC:
+        res = (
+            df.with_columns(
+                pl.when(
+                    pl.col("scan") == scan_number,
+                    pl.col("E").diff() < 0,
+                    potential_limits[0] < pl.col("E"),
+                    pl.col("E") < potential_limits[1],
+                )
+                .then(True)
+                .otherwise(False)
+            )
+            .with_row_index()
+            .filter(pl.col("literal"))
+            .filter(pl.col("j") == pl.col("j").min())
+        )
+    else:
+        res = (
+            df.with_columns(
+                pl.when(
+                    pl.col("scan") == scan_number,
+                    pl.col("E").diff() > 0,
+                    potential_limits[0] < pl.col("E"),
+                    pl.col("E") < potential_limits[1],
+                )
+                .then(True)
+                .otherwise(False)
+            )
+            .with_row_index()
+            .filter(pl.col("literal"))
+            .filter(pl.col("j") == pl.col("j").min())
+        )
+    if isinstance(res, pl.LazyFrame):
+        return res.collect()["index"][0]
+    else:
+        return res["index"][0]
+
+
+def get_peak_maximum_index_pandas(
+    df: pd.DataFrame,
+    potential_limits: list[float],
+    current_direction: Current,
+    scan_number: int,
+    scan_direction: Scan,
+) -> int:
+    potential_limits.sort()
+    if scan_direction == Scan.NEG and current_direction == Current.ANODIC:
+        return df.mask(
+            (
+                (df["scan"] == scan_number)
+                & (df["E"].diff() > 0)
+                & (potential_limits[0] < df["E"])
+                & (df["E"] < potential_limits[0])
+            )
+        )["j"].idxmax()
+    elif scan_direction == Scan.POS and current_direction == Current.ANODIC:
+        return df.mask(
+            (
+                (df["scan"] == scan_number)
+                & (df["E"].diff() > 0)
+                & (potential_limits[0] < df["E"])
+                & (df["E"] < potential_limits[0])
+            )
+        )["j"].idxmax()
+    elif scan_direction == Scan.NEG and current_direction == Current.CATHODIC:
+        return df.mask(
+            (
+                (df["scan"] == scan_number)
+                & (df["E"].diff() < 0)
+                & (potential_limits[0] < df["E"])
+                & (df["E"] < potential_limits[0])
+            )
+        )["j"].idxmin()
+    elif scan_direction == Scan.POS and current_direction == Current.ANODIC:
+        return df.mask(
+            (
+                (df["scan"] == scan_number)
+                & (df["E"].diff() < 0)
+                & (potential_limits[0] < df["E"])
+                & (df["E"] < potential_limits[0])
+            )
+        )["j"].idxmin()
 
 
 def find_x0_values(x, y, mode="all"):
