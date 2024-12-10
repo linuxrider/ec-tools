@@ -1,4 +1,3 @@
-# inspired by the pylint repo
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
@@ -17,7 +16,10 @@ dependencies    = [
 version = "0.0.1"
 
 [tool.setuptools]
-license-files = ["LICENSE"]  # Keep in sync with setup.cfg
+license-files = ["LICENSE"]
+
+[tool.setuptools.packages]
+find = {where = ["ec_tools"], exclude=["test*"]}
 
 [tool.ruff]
 lint.select = ["E", "F", "W", "B"]
