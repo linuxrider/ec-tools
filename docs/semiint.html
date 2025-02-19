@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Semi Integration and Differentiation &mdash; ec-tools 0.0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" />
@@ -113,7 +113,7 @@
 <section id="call-algorithms">
 <h2>Call Algorithms<a class="headerlink" href="#call-algorithms" title="Link to this heading"></a></h2>
 <p>The generalized <code class="docutils literal notranslate"><span class="pre">semi_integration</span></code> function can be imported and executed by:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ec_tools.semi_integration</span> <span class="kn">import</span> <span class="n">semi_integration</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ec_tools.semi_integration</span><span class="w"> </span><span class="kn">import</span> <span class="n">semi_integration</span>
 <span class="n">semi_integration</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">transonic_backend</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -121,17 +121,17 @@
 the algorithms can be imported and executed individually for more control (see below).
 Since the semi-integration can be more or less computationally intensive the possibility to speed up the computation by relying on the <code class="docutils literal notranslate"><span class="pre">transonic</span></code> library is included.</p>
 <p>Import the Gruenwald function directly by:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ec_tools.semi_integration</span> <span class="kn">import</span> <span class="n">gruenwald</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ec_tools.semi_integration</span><span class="w"> </span><span class="kn">import</span> <span class="n">gruenwald</span>
 <span class="n">res</span> <span class="o">=</span> <span class="n">gruenwald</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="n">delta_t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Import the Riemann function directly by:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ec_tools.semi_integration</span> <span class="kn">import</span> <span class="n">riemann</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ec_tools.semi_integration</span><span class="w"> </span><span class="kn">import</span> <span class="n">riemann</span>
 <span class="n">res</span> <span class="o">=</span> <span class="n">riemann</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="n">delta_t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Import the Fast Riemann function directly by:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ec_tools.semi_integration</span> <span class="kn">import</span> <span class="n">fast_riemann</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ec_tools.semi_integration</span><span class="w"> </span><span class="kn">import</span> <span class="n">fast_riemann</span>
 <span class="n">res</span> <span class="o">=</span> <span class="n">fast_riemann</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="n">delta_t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -183,10 +183,10 @@ The purple curve displays the result of the fast Riemann, which shows first a st
 <h4>Full Integration with Realistic Values<a class="headerlink" href="#full-integration-with-realistic-values" title="Link to this heading"></a></h4>
 <p>The previous tests only consider the accuracy of simple functions. In order to investigate the accuracy at more realistic functions, a gaussian distribution function (by scipy.stats) will be used as input. To evaluate the relative error, the implemented algorithms are applied twice (i.e. ‘full’ integration) and are compared with the results of a numerical integration (by scipy.integrate).</p>
 <p>Since this case is more realistic than the previous one, the used code is given here step-by-step. First, all necessary packages need to be imported (i.e. numpy, scipy stats and scipy integrate). Afterwards, the x- &amp; y-vales are generated. As the step size is constant, delta can be calculated by the very first values. The resulting test function is displayed below the code.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="nn">norm</span>
-<span class="kn">from</span> <span class="nn">ec_tools</span> <span class="kn">import</span> <span class="n">semi_integration</span> <span class="k">as</span> <span class="n">si</span>
-<span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.stats</span> <span class="kn">import</span><span class="w"> </span><span class="nn">norm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ec_tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">semi_integration</span> <span class="k">as</span> <span class="n">si</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.integrate</span><span class="w"> </span><span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
 
 <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1001</span><span class="p">)</span>
 <span class="n">y</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
