@@ -13,6 +13,7 @@ dependencies    = [
     "transonic",
 ]
 dynamic = ["version"]
+
 [tool.maturin]
 features = ["pyo3/extension-module"]
 
@@ -76,7 +77,7 @@ scipy = "*"
 benchmark = "TODO"
 
 [tool.pixi.feature.lint.dependencies]
-ruff = ">=0.9.7,<0.10"
+ruff = ">=0.11"
 
 [tool.pixi.feature.lint.tasks]
 pylint = "ruff check ec_tools"
